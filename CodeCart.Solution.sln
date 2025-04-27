@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35303.130
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeCart.Solution", "CodeCart.Solution\CodeCart.Solution.csproj", "{86E7DCAA-D530-4375-92B0-6837BD758F53}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeCart.API", "CodeCart.Solution\CodeCart.API.csproj", "{86E7DCAA-D530-4375-92B0-6837BD758F53}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeCart.Infrastructure", "CodeCart.Infrastructure\CodeCart.Infrastructure.csproj", "{999D4C97-FE0B-4A08-95AF-91FEF87FB140}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeCart.Core", "CodeCart.Core\CodeCart.Core.csproj", "{395BE8CF-5D58-406D-9BBA-5E14DA35F85D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{86E7DCAA-D530-4375-92B0-6837BD758F53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86E7DCAA-D530-4375-92B0-6837BD758F53}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{86E7DCAA-D530-4375-92B0-6837BD758F53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{999D4C97-FE0B-4A08-95AF-91FEF87FB140}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{999D4C97-FE0B-4A08-95AF-91FEF87FB140}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{999D4C97-FE0B-4A08-95AF-91FEF87FB140}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{999D4C97-FE0B-4A08-95AF-91FEF87FB140}.Release|Any CPU.Build.0 = Release|Any CPU
+		{395BE8CF-5D58-406D-9BBA-5E14DA35F85D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{395BE8CF-5D58-406D-9BBA-5E14DA35F85D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{395BE8CF-5D58-406D-9BBA-5E14DA35F85D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{395BE8CF-5D58-406D-9BBA-5E14DA35F85D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
