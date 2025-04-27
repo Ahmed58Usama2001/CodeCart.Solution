@@ -1,0 +1,6 @@
+@CodeCart.Solution_HostAddress = http://localhost:5157
+
+GET {{CodeCart.Solution_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
