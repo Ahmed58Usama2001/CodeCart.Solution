@@ -5,7 +5,7 @@ namespace CodeCart.Infrastructure;
 
 public static class SpecificationsEvaluator<T> where T : BaseEntity
 {
-    public static IQueryable<T> GetQuery(IQueryable<T> inputQuery , ISpecefication<T> specs)
+    public static IQueryable<T> GetQuery(IQueryable<T> inputQuery , ISpecification<T> specs)
     {
         var query = inputQuery;
 
@@ -16,6 +16,9 @@ public static class SpecificationsEvaluator<T> where T : BaseEntity
             query = query.OrderBy(specs.OrderBy);
         else if (specs.OrderByDesc is not null)
             query = query.OrderByDescending(specs.OrderByDesc);
+
+        if(specs.IsPaginationEnabled)
+            query = query.Skip(specs.Skip).Take(specs.Take);
 
         return query;
     }

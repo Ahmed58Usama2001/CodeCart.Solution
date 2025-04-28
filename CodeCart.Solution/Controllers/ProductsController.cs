@@ -1,5 +1,6 @@
 using AutoMapper;
 using CodeCart.API.DTOs;
+using CodeCart.API.Helpers;
 using CodeCart.Core.Entities;
 using CodeCart.Core.Repositories.Contract;
 using CodeCart.Core.Specifications.ProductSpecs;
@@ -19,12 +20,18 @@ public class ProductsController : BaseApiController
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<ProductToReturnDto>>> GetProducts([FromQuery]ProductSpecificationsParams productParams)
+    public async Task<ActionResult<Pagination<ProductToReturnDto>>> GetProducts([FromQuery]ProductSpecificationsParams specificationsParams)
     {
-        var specs = new ProductSpecifications(productParams);
+        var specs = new ProductSpecifications(specificationsParams);
 
-        var products = await _productRepository.GetAllWithSpecAsync(specs);
-        return Ok(_mapper.Map<IReadOnlyList<ProductToReturnDto>>(products));
+        
+
+        return await CreatePagedResult<Product, ProductToReturnDto>(
+            _productRepository,
+            specs,
+            specificationsParams.PageIndex,
+            specificationsParams.PageSize,
+            _mapper);
     }
 
     [HttpGet("{id}")]

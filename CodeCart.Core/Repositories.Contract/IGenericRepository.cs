@@ -13,12 +13,14 @@ public interface IGenericRepository<T> where T : BaseEntity
 
     Task<IReadOnlyList<T>> GetAllAsync();
 
-    Task<IReadOnlyList<T>> GetAllWithSpecAsync(ISpecefication<T> spec);
+    Task<IReadOnlyList<T>> GetAllWithSpecAsync(ISpecification<T> spec);
 
     Task<T?> GetByIdAsync(int id);
-    Task<T?> GetEntityWithSpecAsync(ISpecefication<T> spec);
+    Task<T?> GetEntityWithSpecAsync(ISpecification<T> spec);
 
     Task<bool> SaveAllAsync();
 
     bool Exists(int id);
+
+    Task<int> GetCountAsync(ISpecification<T> spec);
 }

@@ -29,5 +29,7 @@ public class ProductSpecifications:BaseSpecifications<Product>
         }
         else
             AddOrderBy(p => p.Name);
+
+        ApplyPagination(specificationParams.PageSize * (specificationParams.PageIndex - 1), specificationParams.PageSize);
     }
 }
