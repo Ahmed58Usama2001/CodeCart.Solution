@@ -5,7 +5,7 @@ namespace CodeCart.Infrastructure;
 
 public static class SpecificationsEvaluator<T> where T : BaseEntity
 {
-    public static IQueryable<T> GetQuery(IQueryable<T> inputQuery , ISpecefications<T> specs)
+    public static IQueryable<T> GetQuery(IQueryable<T> inputQuery , ISpecefication<T> specs)
     {
         var query = inputQuery;
 
