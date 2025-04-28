@@ -6,8 +6,9 @@ public class ProductSpecifications:BaseSpecifications<Product>
 {
     public ProductSpecifications(ProductSpecificationsParams specificationParams):
         base(p=>
+        (string.IsNullOrEmpty(specificationParams.Search) || p.Name.ToLower().Contains(specificationParams.Search)) &&
         (string.IsNullOrEmpty(specificationParams.brand) || p.Brand == specificationParams.brand) &&
-        (string.IsNullOrEmpty(specificationParams.type) || p.Type == specificationParams.type) 
+        (string.IsNullOrEmpty(specificationParams.type) || p.Type == specificationParams.type)        
         )
     {
         if (!string.IsNullOrEmpty(specificationParams.sort))

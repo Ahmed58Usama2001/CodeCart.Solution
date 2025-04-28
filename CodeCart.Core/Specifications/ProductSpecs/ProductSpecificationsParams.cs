@@ -8,6 +8,14 @@ public class ProductSpecificationsParams
 
     public string? type { get; set; }
 
+    private string? search;
+
+    public string? Search
+    {
+        get { return search; }
+        set { search = value?.ToLower(); }
+    }
+
     private const int maxPageSize = 10;
 	private int pageSize=5;
 
