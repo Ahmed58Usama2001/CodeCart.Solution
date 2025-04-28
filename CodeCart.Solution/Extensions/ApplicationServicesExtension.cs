@@ -9,6 +9,7 @@ public static class ApplicationServicesExtension
     {
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
+
         return services;
     }
 }

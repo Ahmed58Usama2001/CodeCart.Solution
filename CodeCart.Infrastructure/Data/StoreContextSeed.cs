@@ -1,4 +1,5 @@
 ﻿using CodeCart.Core.Entities;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
 namespace CodeCart.Infrastructure.Data;
@@ -14,7 +15,9 @@ public static class StoreContextSeed
             var products = JsonSerializer.Deserialize<List<Product>>(procutsData);
 
             if(products?.Count()>0)
-             await  _context.AddRangeAsync(products);
+            { await  _context.AddRangeAsync(products);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

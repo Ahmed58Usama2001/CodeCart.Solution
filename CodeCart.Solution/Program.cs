@@ -17,6 +17,7 @@ public class Program
         
         builder.Services.AddSwaggerServices();
 
+
         builder.Services.AddApplicationServices();
 
         builder.Services.AddDbContext<StoreContext>(options => {
@@ -58,6 +59,8 @@ public class Program
         app.UseAuthorization();
 
         app.MapControllers();
+
+        app.UseStaticFiles();
 
         app.Run();
 

@@ -20,6 +20,7 @@
 
   <ItemGroup>
 	  <ProjectReference Include="..\CodeCart.Infrastructure\CodeCart.Infrastructure.csproj" />
+	  <ProjectReference Include="..\CodeCart.Services\CodeCart.Services.csproj" />
 
   </ItemGroup>
 

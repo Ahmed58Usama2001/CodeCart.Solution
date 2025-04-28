@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.4" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services.Contract\" />
+    <ProjectReference Include="..\CodeCart.Core\CodeCart.Core.csproj" />
   </ItemGroup>
 
 </Project>
