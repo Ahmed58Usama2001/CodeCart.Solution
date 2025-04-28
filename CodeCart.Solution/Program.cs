@@ -1,5 +1,6 @@
 
 using CodeCart.API.Extensions;
+using CodeCart.API.Middlewares;
 using CodeCart.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,15 +19,23 @@ public class Program
         builder.Services.AddSwaggerServices();
 
 
-        builder.Services.AddApplicationServices();
 
         builder.Services.AddDbContext<StoreContext>(options => {
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
         });
 
+        builder.Services.AddApplicationServices();
+
+        builder.Services.AddCors();
+
         // Anything before is a service
         var app = builder.Build();
         // Anything after is a Middleware
+
+        app.UseMiddleware<ExceptionMiddleware>();
+
+        app.UseCors(x=>x.AllowAnyHeader().AllowAnyMethod()
+        .WithOrigins("http://localhost:4200", "https://localhost:4200"));
 
         using var scope = app.Services.CreateScope();
 
