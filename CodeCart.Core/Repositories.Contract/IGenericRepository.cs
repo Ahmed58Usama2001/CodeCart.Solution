@@ -1,4 +1,5 @@
 ﻿using CodeCart.Core.Entities;
+using CodeCart.Core.Specifications;
 
 namespace CodeCart.Core.Repositories.Contract;
 
@@ -12,7 +13,10 @@ public interface IGenericRepository<T> where T : BaseEntity
 
     Task<IReadOnlyList<T>> GetAllAsync();
 
+    Task<IReadOnlyList<T>> GetAllWithSpecAsync(ISpecefications<T> spec);
+
     Task<T?> GetByIdAsync(int id);
+    Task<T?> GetEntityWithSpecAsync(ISpecefications<T> spec);
 
     Task<bool> SaveAllAsync();
 

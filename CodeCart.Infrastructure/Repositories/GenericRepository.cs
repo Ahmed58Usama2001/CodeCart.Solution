@@ -1,5 +1,6 @@
 ﻿using CodeCart.Core.Entities;
 using CodeCart.Core.Repositories.Contract;
+using CodeCart.Core.Specifications;
 using CodeCart.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,9 +20,14 @@ public class GenericRepository<T>(StoreContext _context) : IGenericRepository<T>
     public async Task<IReadOnlyList<T>> GetAllAsync()
     => await _context.Set<T>().ToListAsync();
 
+    public async Task<IReadOnlyList<T>> GetAllWithSpecAsync(ISpecefications<T> spec)
+    =>await ApplySpecifications(spec).ToListAsync();
+
     public async Task<T?> GetByIdAsync(int id)
         => await _context.Set<T>().FindAsync(id);
-    
+
+    public async Task<T?> GetEntityWithSpecAsync(ISpecefications<T> spec)
+    =>await ApplySpecifications(spec).FirstOrDefaultAsync();
 
     public async Task<bool> SaveAllAsync()
     => await _context.SaveChangesAsync() > 0;
@@ -29,4 +35,9 @@ public class GenericRepository<T>(StoreContext _context) : IGenericRepository<T>
 
     public void Update(T entity)
     => _context.Update(entity);
+
+
+    private IQueryable<T> ApplySpecifications(ISpecefications<T> spec)
+    => SpecificationsEvaluator<T>.GetQuery(_context.Set<T>() , spec);
+    
 }
