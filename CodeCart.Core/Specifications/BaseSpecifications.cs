@@ -7,7 +7,7 @@ public class BaseSpecifications<T> : ISpecefications<T> where T : BaseEntity
 {
     public Expression<Func<T, bool>> Criteria { get; set; } = null!;
     public Expression<Func<T, object>> OrderBy { get; set; } = null!;
-    public Expression<Func<T, bool>> OrderByDesc { get; set; } = null!;
+    public Expression<Func<T, object>> OrderByDesc { get; set; } = null!;
 
     public BaseSpecifications()
     {
@@ -26,6 +26,6 @@ public class BaseSpecifications<T> : ISpecefications<T> where T : BaseEntity
 
     public void AddOrderByDesc(Expression<Func<T, object>> orderByDescExpression)
     {
-        OrderBy = orderByDescExpression;
+        OrderByDesc = orderByDescExpression;
     }
 }
