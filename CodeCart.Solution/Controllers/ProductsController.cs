@@ -1,3 +1,5 @@
+using AutoMapper;
+using CodeCart.API.DTOs;
 using CodeCart.Core.Entities;
 using CodeCart.Core.Repositories.Contract;
 using Microsoft.AspNetCore.Mvc;
@@ -7,68 +9,62 @@ namespace CodeCart.API.Controllers;
 public class ProductsController : BaseApiController
 {
     private readonly IGenericRepository<Product> _productRepository;
+    private readonly IMapper _mapper;
 
-    public ProductsController(IGenericRepository<Product> productRepository)
+    public ProductsController(IGenericRepository<Product> productRepository, IMapper mapper)
     {
         _productRepository = productRepository;
+        _mapper = mapper;
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts()
+    public async Task<ActionResult<IReadOnlyList<ProductToReturnDto>>> GetProducts()
     {
         var products = await _productRepository.GetAllAsync();
-        return Ok(products);
+        return Ok(_mapper.Map<IReadOnlyList<ProductToReturnDto>>(products));
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Product>> GetProduct(int id)
+    public async Task<ActionResult<ProductToReturnDto>> GetProduct(int id)
     {
         var product = await _productRepository.GetByIdAsync(id);
 
-        if (product == null)
-        {
-            return NotFound();
-        }
+        if (product == null) return NotFound();
 
-        return Ok(product);
+        return _mapper.Map<ProductToReturnDto>(product);
     }
 
     [HttpPost]
-    public async Task<ActionResult<Product>> CreateProduct(Product product)
+    public async Task<ActionResult<ProductToReturnDto>> CreateProduct(CreateProductDto productDto)
     {
+        var product = _mapper.Map<Product>(productDto);
+
         await _productRepository.CreateAsync(product);
         var saved = await _productRepository.SaveAllAsync();
 
-        if (!saved)
-        {
-            return BadRequest("Problem creating product");
-        }
+        if (!saved) return BadRequest("Problem creating product");
 
-        return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
+        return CreatedAtAction(
+            nameof(GetProduct),
+            new { id = product.Id },
+            _mapper.Map<ProductToReturnDto>(product));
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateProduct(int id, Product product)
+    public async Task<ActionResult<ProductToReturnDto>> UpdateProduct(int id, UpdateProductDto productDto)
     {
-        if (id != product.Id)
-        {
-            return BadRequest("Ids don't match");
-        }
+        var product = await _productRepository.GetByIdAsync(id);
 
-        if (!_productRepository.Exists(id))
-        {
-            return NotFound();
-        }
+        if (product == null) return NotFound();
 
+        _mapper.Map(productDto, product);
         _productRepository.Update(product);
+
         var saved = await _productRepository.SaveAllAsync();
 
-        if (!saved)
-        {
-            return BadRequest("Problem updating product");
-        }
+        if (!saved) return BadRequest("Problem updating product");
 
-        return NoContent();
+        return Ok(_mapper.Map<ProductToReturnDto>(product));
     }
 
     [HttpDelete("{id}")]
@@ -76,18 +72,12 @@ public class ProductsController : BaseApiController
     {
         var product = await _productRepository.GetByIdAsync(id);
 
-        if (product == null)
-        {
-            return NotFound();
-        }
+        if (product == null) return NotFound();
 
         _productRepository.Delete(product);
         var saved = await _productRepository.SaveAllAsync();
 
-        if (!saved)
-        {
-            return BadRequest("Problem deleting product");
-        }
+        if (!saved) return BadRequest("Problem deleting product");
 
         return NoContent();
     }
