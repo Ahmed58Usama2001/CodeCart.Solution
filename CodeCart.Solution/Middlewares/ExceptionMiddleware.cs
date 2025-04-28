@@ -1,34 +1,43 @@
-﻿
-using CodeCart.API.Errors;
-using Microsoft.AspNetCore.Http;
+﻿using CodeCart.API.Errors;
 using System.Net;
 using System.Text.Json;
 
 namespace CodeCart.API.Middlewares;
 
-public class ExceptionMiddleware(IHostEnvironment environment, ILogger<ExceptionMiddleware> logger) : IMiddleware
+public class ExceptionMiddleware
 {
-    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+    private readonly RequestDelegate _next;
+    private readonly IHostEnvironment _environment;
+    private readonly ILogger<ExceptionMiddleware> _logger;
+
+    public ExceptionMiddleware(
+        RequestDelegate next,
+        IHostEnvironment environment,
+        ILogger<ExceptionMiddleware> logger)
     {
-		try
-		{
-			await next(context);
-		}
+        _next = next;
+        _environment = environment;
+        _logger = logger;
+    }
+
+    public async Task InvokeAsync(HttpContext context)
+    {
+        try
+        {
+            await _next(context);
+        }
         catch (Exception ex)
         {
-
-            logger.LogError(ex, ex.Message);
-
+            _logger.LogError(ex, ex.Message);
 
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-            var response = environment.IsDevelopment() ?
+            var response = _environment.IsDevelopment() ?
                 new ApiExceptionResponse((int)HttpStatusCode.InternalServerError, ex.Message, ex.StackTrace?.ToString()) :
                 new ApiExceptionResponse((int)HttpStatusCode.InternalServerError);
 
-            var options = new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-
+            var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
             var json = JsonSerializer.Serialize(response, options);
 
             await context.Response.WriteAsync(json);
