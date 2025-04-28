@@ -12,6 +12,11 @@ public static class SpecificationsEvaluator<T> where T : BaseEntity
         if(specs.Criteria is not null)
             query = query.Where(specs.Criteria);
 
+        if (specs.OrderBy is not null)
+            query = query.OrderBy(specs.OrderBy);
+        else if (specs.OrderByDesc is not null)
+            query = query.OrderByDescending(specs.OrderByDesc);
+
         return query;
     }
 }
