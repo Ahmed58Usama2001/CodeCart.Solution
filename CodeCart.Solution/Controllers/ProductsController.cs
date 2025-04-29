@@ -20,18 +20,27 @@ public class ProductsController : BaseApiController
     }
 
     [HttpGet]
-    public async Task<ActionResult<Pagination<ProductToReturnDto>>> GetProducts([FromQuery]ProductSpecificationsParams specificationsParams)
+    public async Task<ActionResult<Pagination<ProductToReturnDto>>> GetProducts(
+     [FromQuery] ProductSpecificationsParams specParams)
     {
-        var specs = new ProductSpecifications(specificationsParams);
-
-        
+        var specs = new ProductSpecifications(specParams);
 
         return await CreatePagedResult<Product, ProductToReturnDto>(
             _productRepository,
             specs,
-            specificationsParams.PageIndex,
-            specificationsParams.PageSize,
+            specParams.PageIndex,
+            specParams.PageSize,
             _mapper);
+    }
+
+    private List<string>? ParseQueryParamToList(IQueryCollection queryParam)
+    {
+        if (!queryParam.Any()) return null;
+
+        return queryParam.ToString()
+            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(x => x.Trim().ToLower())
+            .ToList();
     }
 
     [HttpGet("{id}")]

@@ -1,36 +1,50 @@
 ﻿using CodeCart.Core.Entities;
+using System.Linq.Expressions;
 
 namespace CodeCart.Core.Specifications.ProductSpecs;
 
-public class ProductSpecifications:BaseSpecifications<Product>
+public class ProductSpecifications : BaseSpecifications<Product>
 {
-    public ProductSpecifications(ProductSpecificationsParams specificationParams):
-        base(p=>
-        (string.IsNullOrEmpty(specificationParams.Search) || p.Name.ToLower().Contains(specificationParams.Search)) &&
-        (string.IsNullOrEmpty(specificationParams.brand) || p.Brand == specificationParams.brand) &&
-        (string.IsNullOrEmpty(specificationParams.type) || p.Type == specificationParams.type)        
-        )
+    public ProductSpecifications(ProductSpecificationsParams specParams)
+        : base(GetCriteria(specParams))
     {
-        if (!string.IsNullOrEmpty(specificationParams.sort))
+        ApplyOrdering(specParams);
+        ApplyPagination(specParams);
+    }
+
+    private static Expression<Func<Product, bool>> GetCriteria(ProductSpecificationsParams specParams)
+    {
+        return p =>
+            (string.IsNullOrEmpty(specParams.Search) || p.Name.ToLower().Contains(specParams.Search)) &&
+            (specParams.Brands == null || !specParams.Brands.Any() || specParams.Brands.Contains(p.Brand.ToLower())) &&
+            (specParams.Types == null || !specParams.Types.Any() || specParams.Types.Contains(p.Type.ToLower()));
+    }
+
+    private void ApplyOrdering(ProductSpecificationsParams specParams)
+    {
+        if (!string.IsNullOrEmpty(specParams.sort))
         {
-            switch (specificationParams.sort)
+            switch (specParams.sort.ToLower())
             {
                 case "priceAsc":
                     AddOrderBy(p => p.Price);
                     break;
-
                 case "priceDesc":
                     AddOrderByDesc(p => p.Price);
                     break;
-
                 default:
                     AddOrderBy(p => p.Name);
                     break;
             }
         }
         else
+        {
             AddOrderBy(p => p.Name);
+        }
+    }
 
-        ApplyPagination(specificationParams.PageSize * (specificationParams.PageIndex - 1), specificationParams.PageSize);
+    private void ApplyPagination(ProductSpecificationsParams specParams)
+    {
+        ApplyPagination(specParams.PageSize * (specParams.PageIndex - 1), specParams.PageSize);
     }
 }
