@@ -10,10 +10,10 @@ namespace CodeCart.API.Controllers;
 
 public class ProductsController : BaseApiController
 {
-    private readonly IGenericRepository<Product> _productRepository;
+    private readonly IProductRepository _productRepository;
     private readonly IMapper _mapper;
 
-    public ProductsController(IGenericRepository<Product> productRepository, IMapper mapper)
+    public ProductsController(IProductRepository productRepository, IMapper mapper)
     {
         _productRepository = productRepository;
         _mapper = mapper;
@@ -90,5 +90,17 @@ public class ProductsController : BaseApiController
         if (!saved) return BadRequest("Problem deleting product");
 
         return NoContent();
+    }
+
+    [HttpGet("brands")]
+    public async Task<ActionResult<IReadOnlyList<string>>> GetProductBrands()
+    {
+        return Ok(await _productRepository.GetProductBrandsAsync());
+    }
+
+    [HttpGet("types")]
+    public async Task<ActionResult<IReadOnlyList<string>>> GetProductTypes()
+    {
+        return Ok(await _productRepository.GetProductTypesAsync());
     }
 }
