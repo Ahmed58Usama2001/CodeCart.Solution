@@ -41,7 +41,7 @@ public class ProductSpecificationsParams
         set { search = value?.ToLower(); }
     }
 
-    private const int maxPageSize = 10;
+    private const int maxPageSize = 20;
 	private int pageSize=5;
 
 	public int PageSize
