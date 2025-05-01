@@ -3,6 +3,7 @@ using CodeCart.API.DTOs;
 using CodeCart.API.Helpers;
 using CodeCart.Core.Entities;
 using CodeCart.Core.Repositories.Contract;
+using CodeCart.Core.Specifications;
 using CodeCart.Core.Specifications.ProductSpecs;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,24 +26,19 @@ public class ProductsController : BaseApiController
     {
         var specs = new ProductSpecifications(specParams);
 
+        var count = await _productRepository.GetCountAsync(new ProductsForCountSpecifications(specParams));
+
+
         return await CreatePagedResult<Product, ProductToReturnDto>(
             _productRepository,
             specs,
             specParams.PageIndex,
             specParams.PageSize,
+            count,
             _mapper);
     }
 
-    private List<string>? ParseQueryParamToList(IQueryCollection queryParam)
-    {
-        if (!queryParam.Any()) return null;
-
-        return queryParam.ToString()
-            .Split(',', StringSplitOptions.RemoveEmptyEntries)
-            .Select(x => x.Trim().ToLower())
-            .ToList();
-    }
-
+  
     [HttpGet("{id}")]
     public async Task<ActionResult<ProductToReturnDto>> GetProduct(int id)
     {
