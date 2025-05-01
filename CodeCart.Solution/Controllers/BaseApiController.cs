@@ -1,4 +1,5 @@
 using AutoMapper;
+using CodeCart.API.DTOs;
 using CodeCart.API.Helpers;
 using CodeCart.Core.Entities;
 using CodeCart.Core.Repositories.Contract;
@@ -13,19 +14,16 @@ namespace CodeCart.API.Controllers;
 public class BaseApiController : ControllerBase
 {
     protected async Task<ActionResult<Pagination<TDto>>> CreatePagedResult<T, TDto>(
-        IGenericRepository<T> repository,
-        ISpecification<T> specification,
-        int pageIndex,
-        int pageSize,
-        int count,
-        IMapper mapper)
-        where T : BaseEntity
+      PagedResultParameters<T, TDto> parameters)
+      where T : BaseEntity
     {
-        var items = await repository.GetAllWithSpecAsync(specification);
+        var items = await parameters.Repository.GetAllWithSpecAsync(parameters.Specification);
+        var data = parameters.Mapper.Map<IReadOnlyList<TDto>>(items);
 
-
-        var data = mapper.Map<IReadOnlyList<TDto>>(items);
-
-        return Ok(new Pagination<TDto>(pageIndex, pageSize, count, data));
+        return Ok(new Pagination<TDto>(
+            parameters.PageIndex,
+            parameters.PageSize,
+            parameters.Count,
+            data));
     }
 }

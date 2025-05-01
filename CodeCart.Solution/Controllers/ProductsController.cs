@@ -22,23 +22,25 @@ public class ProductsController : BaseApiController
 
     [HttpGet]
     public async Task<ActionResult<Pagination<ProductToReturnDto>>> GetProducts(
-     [FromQuery] ProductSpecificationsParams specParams)
+       [FromQuery] ProductSpecificationsParams specParams)
     {
         var specs = new ProductSpecifications(specParams);
-
         var count = await _productRepository.GetCountAsync(new ProductsForCountSpecifications(specParams));
 
+        var parameters = new PagedResultParameters<Product, ProductToReturnDto>
+        {
+            Repository = _productRepository,
+            Specification = specs,
+            PageIndex = specParams.PageIndex,
+            PageSize = specParams.PageSize,
+            Count = count,
+            Mapper = _mapper
+        };
 
-        return await CreatePagedResult<Product, ProductToReturnDto>(
-            _productRepository,
-            specs,
-            specParams.PageIndex,
-            specParams.PageSize,
-            count,
-            _mapper);
+        return await CreatePagedResult(parameters);
     }
 
-  
+
     [HttpGet("{id}")]
     public async Task<ActionResult<ProductToReturnDto>> GetProduct(int id)
     {
