@@ -26,10 +26,10 @@ public class ProductSpecifications : BaseSpecifications<Product>
         {
             switch (specParams.sort.ToLower())
             {
-                case "priceAsc":
+                case "priceasc":
                     AddOrderBy(p => p.Price);
                     break;
-                case "priceDesc":
+                case "pricedesc":
                     AddOrderByDesc(p => p.Price);
                     break;
                 default:

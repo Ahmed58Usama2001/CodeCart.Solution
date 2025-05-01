@@ -22,9 +22,6 @@ public class ProductSpecificationsParams
     {
         if (input == null) return null;
 
-        // Handle both cases:
-        // 1. When ASP.NET Core binds multiple values (["Nike", "Adidas"])
-        // 2. When a single comma-separated string is passed (["Nike,Adidas"])
         return input
             .SelectMany(s => s.Split(',', StringSplitOptions.RemoveEmptyEntries))
             .Select(x => x.Trim().ToLower())
