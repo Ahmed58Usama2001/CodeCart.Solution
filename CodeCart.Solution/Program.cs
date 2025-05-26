@@ -3,6 +3,7 @@ using CodeCart.API.Extensions;
 using CodeCart.API.Middlewares;
 using CodeCart.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 
 namespace CodeCart.API;
 
@@ -17,6 +18,13 @@ public class Program
         builder.Services.AddSwaggerServices();
         builder.Services.AddDbContext<StoreContext>(options => {
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+        });
+        builder.Services.AddSingleton<IConnectionMultiplexer>((config) =>
+        {
+            var connectionString = builder.Configuration.GetConnectionString("Redis") ?? throw new Exception("Cannot get redis connections string ");
+            var configuration = ConfigurationOptions.Parse(connectionString,true);
+
+            return ConnectionMultiplexer.Connect(configuration);
         });
         builder.Services.AddApplicationServices();
         builder.Services.AddCors();
