@@ -2,8 +2,7 @@ using AutoMapper;
 using CodeCart.API.DTOs;
 using CodeCart.API.Helpers;
 using CodeCart.Core.Entities;
-using CodeCart.Core.Repositories.Contract;
-using CodeCart.Core.Specifications;
+using CodeCart.Core.Repositories.Contracts;
 using CodeCart.Core.Specifications.ProductSpecs;
 using Microsoft.AspNetCore.Mvc;
 

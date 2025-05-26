@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using CodeCart.Core.Entities;
-using CodeCart.Core.Repositories.Contract;
+using CodeCart.Core.Repositories.Contracts;
 using CodeCart.Core.Specifications;
 
 namespace CodeCart.API.DTOs;

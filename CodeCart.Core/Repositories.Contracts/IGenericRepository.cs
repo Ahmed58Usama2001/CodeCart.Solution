@@ -1,7 +1,7 @@
 ﻿using CodeCart.Core.Entities;
 using CodeCart.Core.Specifications;
 
-namespace CodeCart.Core.Repositories.Contract;
+namespace CodeCart.Core.Repositories.Contracts;
 
 public interface IGenericRepository<T> where T : BaseEntity
 {

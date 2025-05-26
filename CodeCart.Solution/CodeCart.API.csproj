@@ -22,7 +22,7 @@
 
   <ItemGroup>
 	  <ProjectReference Include="..\CodeCart.Infrastructure\CodeCart.Infrastructure.csproj" />
-	  <ProjectReference Include="..\CodeCart.Services\CodeCart.Services.csproj" />
+	  <ProjectReference Include="..\CodeCart.Service\CodeCart.Service.csproj" />
 
   </ItemGroup>
 

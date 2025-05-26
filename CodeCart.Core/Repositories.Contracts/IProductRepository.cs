@@ -1,6 +1,6 @@
 ﻿using CodeCart.Core.Entities;
 
-namespace CodeCart.Core.Repositories.Contract;
+namespace CodeCart.Core.Repositories.Contracts;
 public interface IProductRepository : IGenericRepository<Product>
 {
     Task<IReadOnlyList<string>> GetProductBrandsAsync();

@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeCart.Infrastructure", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeCart.Core", "CodeCart.Core\CodeCart.Core.csproj", "{395BE8CF-5D58-406D-9BBA-5E14DA35F85D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeCart.Services", "CodeCart.Services\CodeCart.Services.csproj", "{EC4D795B-129F-40FC-96CD-1CC43B12E760}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeCart.Service", "CodeCart.Service\CodeCart.Service.csproj", "{0F67E019-5AEC-4F75-88F2-16125D25EBC5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,10 @@ Global
 		{395BE8CF-5D58-406D-9BBA-5E14DA35F85D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{395BE8CF-5D58-406D-9BBA-5E14DA35F85D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{395BE8CF-5D58-406D-9BBA-5E14DA35F85D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EC4D795B-129F-40FC-96CD-1CC43B12E760}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EC4D795B-129F-40FC-96CD-1CC43B12E760}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EC4D795B-129F-40FC-96CD-1CC43B12E760}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EC4D795B-129F-40FC-96CD-1CC43B12E760}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F67E019-5AEC-4F75-88F2-16125D25EBC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F67E019-5AEC-4F75-88F2-16125D25EBC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F67E019-5AEC-4F75-88F2-16125D25EBC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F67E019-5AEC-4F75-88F2-16125D25EBC5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
