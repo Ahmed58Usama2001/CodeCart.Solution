@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Text.Encodings.Web;
 
 namespace CodeCart.API.Controllers;
 
@@ -30,15 +31,22 @@ public class AccountController(SignInManager<AppUser> signInManager, UserManager
         var result = await userManager.CreateAsync(user, registerDto.Password);
         if (!result.Succeeded) return BadRequest(new ApiResponse(400));
 
-        var tokens = await authService.CreateTokensAsync(user, userManager);
+        var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
+        var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = UrlEncoder.Default.Encode(code) }, "http", configuration["ClientBaseUrl"]);
 
-        return Ok(new UserDto
-        {
-            Email = user.Email,
-            UserName = user.UserName,
-            Token = tokens.AccessToken,
-            RefreshToken = tokens.RefreshToken
-        });
+        var bodyUrl = $"{Directory.GetCurrentDirectory()}\\wwwroot\\TempleteHtml\\2-StepVerificationTemplete.html";
+        var body = new StreamReader(bodyUrl);
+        var mailText = body.ReadToEnd();
+        body.Close();
+
+        mailText = mailText.Replace("[username]", user.UserName).Replace("[LinkHere]",
+            HtmlEncoder.Default.Encode(callbackUrl!));
+
+        var emailResult = await mailService.SendEmailAsync(registerDto.Email, "Confirmation Email", mailText);
+        if (emailResult == false)
+            return BadRequest(new ApiResponse(400));
+
+        return Ok(true);
     }
 
     [HttpPost("login")]
@@ -142,7 +150,7 @@ public class AccountController(SignInManager<AppUser> signInManager, UserManager
 
                 var result = await mailService.SendEmailAsync(model.Email, "Reset Password", mailText);
                 if (result == false)
-                    return BadRequest(new ApiResponse(400, "No Internet Connection"));
+                    return BadRequest(new ApiResponse(400));
 
 
                 return Ok(model);
