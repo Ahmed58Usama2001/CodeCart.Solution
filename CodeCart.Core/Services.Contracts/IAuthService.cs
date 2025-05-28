@@ -5,7 +5,6 @@ namespace CodeCart.Core.Services.Contracts;
 
 public interface IAuthService
 {
-    Task<string> CreateTokenAsync(AppUser user, UserManager<AppUser> userManager);
     Task<string> CreateAccessTokenAsync(AppUser user, UserManager<AppUser> userManager);
     Task<TokenResult> CreateTokensAsync(AppUser user, UserManager<AppUser> userManager);
     Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken, UserManager<AppUser> userManager);

@@ -79,10 +79,8 @@ public class AuthService(IConfiguration configuration, IRefreshTokenService refr
             };
         }
 
-        // Revoke the old refresh token
         await refreshTokenService.RevokeRefreshTokenAsync(refreshToken);
 
-        // Generate new tokens
         var tokens = await CreateTokensAsync(user, userManager);
 
         return new RefreshTokenResult
@@ -99,9 +97,5 @@ public class AuthService(IConfiguration configuration, IRefreshTokenService refr
         await refreshTokenService.RevokeAllUserRefreshTokensAsync(userId);
     }
 
-    // Legacy method for backward compatibility
-    public async Task<string> CreateTokenAsync(AppUser user, UserManager<AppUser> userManager)
-    {
-        return await CreateAccessTokenAsync(user, userManager);
-    }
+  
 }

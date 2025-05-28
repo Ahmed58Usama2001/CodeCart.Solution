@@ -5,7 +5,8 @@ using System.Text.Json;
 
 namespace CodeCart.API.Middlewares;
 
-public class JwtBlacklistMiddleware(RequestDelegate next, ITokenBlacklistService tokenBlacklistService)
+public class JwtBlacklistMiddleware(RequestDelegate next, ITokenBlacklistService tokenBlacklistService,
+     ILogger<JwtBlacklistMiddleware> logger)
 {
     public async Task InvokeAsync(HttpContext context)
     {
@@ -31,10 +32,9 @@ public class JwtBlacklistMiddleware(RequestDelegate next, ITokenBlacklistService
                     return;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // If there's an error reading the token, let it pass through
-                // The JWT validation will handle invalid tokens
+                logger.LogError(ex, ex.Message);
             }
         }
 

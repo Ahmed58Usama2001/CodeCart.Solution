@@ -22,7 +22,6 @@ public class RefreshTokenService(IConnectionMultiplexer redis, IConfiguration co
 
         await _database.StringSetAsync(key, userId, expiration);
 
-        // Also store in user's active tokens list for easy revocation
         var userTokensKey = $"user_refresh_tokens:{userId}";
         await _database.SetAddAsync(userTokensKey, refreshToken);
         await _database.KeyExpireAsync(userTokensKey, expiration);
@@ -59,7 +58,6 @@ public class RefreshTokenService(IConnectionMultiplexer redis, IConfiguration co
         {
             await _database.KeyDeleteAsync(key);
 
-            // Remove from user's active tokens list
             var userTokensKey = $"user_refresh_tokens:{userId}";
             await _database.SetRemoveAsync(userTokensKey, refreshToken);
         }
