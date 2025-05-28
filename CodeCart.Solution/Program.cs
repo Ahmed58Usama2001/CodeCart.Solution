@@ -1,6 +1,7 @@
 
 using CodeCart.API.Extensions;
 using CodeCart.API.Middlewares;
+using CodeCart.Core.Entities;
 using CodeCart.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
@@ -27,11 +28,15 @@ public class Program
             return ConnectionMultiplexer.Connect(configuration);
         });
         builder.Services.AddApplicationServices();
+
+        builder.Services.AddAuthorization();
+        builder.Services.AddIdentityApiEndpoints<AppUser>()
+            .AddEntityFrameworkStores<StoreContext>();
+
         builder.Services.AddCors();
 
         var app = builder.Build();
 
-        // Exception handling middleware (now works with either approach)
         app.UseMiddleware<ExceptionMiddleware>();
 
         app.UseCors(x => x.AllowAnyHeader()
@@ -64,6 +69,7 @@ public class Program
         app.UseStaticFiles();
         app.UseAuthorization();
         app.MapControllers();
+        app.MapIdentityApi<AppUser>();
         app.Run();
 
     }
