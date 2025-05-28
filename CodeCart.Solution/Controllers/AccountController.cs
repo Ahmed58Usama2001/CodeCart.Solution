@@ -1,16 +1,19 @@
-﻿using CodeCart.API.DTOs.AccountDtos;
+﻿using AutoMapper;
+using CodeCart.API.DTOs.AccountDtos;
 using CodeCart.API.Errors;
 using CodeCart.Core.Entities;
 using CodeCart.Core.Services.Contracts.SecurityModule;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace CodeCart.API.Controllers;
 
 public class AccountController(SignInManager<AppUser> signInManager, UserManager<AppUser> userManager,
-    IAuthService authService, ITokenBlacklistService tokenBlacklistService) : BaseApiController
+    IAuthService authService, ITokenBlacklistService tokenBlacklistService,
+    IMapper mapper) : BaseApiController
 {
     [HttpPost("register")]
     public async Task<ActionResult> Register(RegisterDto registerDto)
@@ -99,8 +102,7 @@ public class AccountController(SignInManager<AppUser> signInManager, UserManager
     [HttpGet("get-current-user")]
     public async Task<ActionResult<UserDto>> GetCurrentUser()
     {
-        var email = User.FindFirstValue(ClaimTypes.Email) ?? null;
-        var user = await userManager.FindByEmailAsync(email!);
+        var user = await FindUserWithAddressAsync(userManager, User);
         if (user == null) return Unauthorized(new ApiResponse(401));
 
         var tokens = await authService.CreateTokensAsync(user, userManager);
@@ -109,8 +111,53 @@ public class AccountController(SignInManager<AppUser> signInManager, UserManager
         {
             UserName = user?.UserName ?? string.Empty,
             Email = user?.Email ?? string.Empty,
+            Address= user?.Address is not null ? mapper.Map<AddressDto>(user.Address) : null!,
             Token = tokens.AccessToken,
             RefreshToken = tokens.RefreshToken
         });
+    }
+
+    [Authorize]
+    [HttpGet("address")]
+    public async Task<ActionResult<AddressDto>> GetUserAddress()
+    {
+
+        var user = await FindUserWithAddressAsync(userManager,User);
+
+        if (user.Address == null)
+           return NotFound(new ApiResponse(404 , "The user has no address"));
+
+        var address = mapper.Map<AddressDto>(user.Address);
+
+        return Ok(address);
+    }
+
+    [Authorize]
+    [HttpPut("address")]
+    public async Task<ActionResult<AddressDto>> UpdateUserAddress(AddressDto updatedAddress)
+    {
+        var user = await FindUserWithAddressAsync(userManager, User);
+
+        if (user.Address == null)
+            return NotFound(new ApiResponse(404, "The user has no address"));
+
+        mapper.Map(updatedAddress, user.Address);
+
+        var result = await userManager.UpdateAsync(user);
+
+        if (!result.Succeeded)
+            return BadRequest(new ApiResponse(400));
+
+        return Ok(updatedAddress);
+    }
+
+
+    private async Task<AppUser> FindUserWithAddressAsync(UserManager<AppUser> userManager, ClaimsPrincipal User)
+    {
+        var email = User.FindFirstValue(ClaimTypes.Email);
+
+        var user = await userManager.Users.Include(U => U.Address).SingleOrDefaultAsync(U => U.Email == email);
+
+        return user!;
     }
 }
