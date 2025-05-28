@@ -2,6 +2,7 @@
 using CodeCart.API.DTOs.AccountDtos;
 using CodeCart.API.Errors;
 using CodeCart.Core.Entities;
+using CodeCart.Core.Services.Contracts;
 using CodeCart.Core.Services.Contracts.SecurityModule;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -13,7 +14,8 @@ namespace CodeCart.API.Controllers;
 
 public class AccountController(SignInManager<AppUser> signInManager, UserManager<AppUser> userManager,
     IAuthService authService, ITokenBlacklistService tokenBlacklistService,
-    IMapper mapper) : BaseApiController
+    IMapper mapper, IConfiguration configuration,
+        IMailingService mailService) : BaseApiController
 {
     [HttpPost("register")]
     public async Task<ActionResult> Register(RegisterDto registerDto)
@@ -115,6 +117,63 @@ public class AccountController(SignInManager<AppUser> signInManager, UserManager
             Token = tokens.AccessToken,
             RefreshToken = tokens.RefreshToken
         });
+    }
+
+    [HttpPost("forgetPassword")]
+    public async Task<ActionResult<UserDto>> ForgetPassword(ForgetPasswordDto model)
+    {
+        if (ModelState.IsValid)
+        {
+            var user = await userManager.FindByEmailAsync(model.Email);
+
+
+            if (user is not null)
+            {
+                var token = await userManager.GeneratePasswordResetTokenAsync(user);
+                var resetPasswordLink = Url.Action("ResetPassword", "Account", new { Email = model.Email, Token = token }, "http", configuration["ClientBaseUrl"]);
+                
+
+                var bodyUrl = $"{Directory.GetCurrentDirectory()}\\wwwroot\\TempleteHtml\\ForgetPasswordTemplete.html";
+                var body = new StreamReader(bodyUrl);
+                var mailText = body.ReadToEnd();
+                body.Close();
+
+                mailText = mailText.Replace("[username]", user.UserName).Replace("[LinkHere]", resetPasswordLink);
+
+                var result = await mailService.SendEmailAsync(model.Email, "Reset Password", mailText);
+                if (result == false)
+                    return BadRequest(new ApiResponse(400, "No Internet Connection"));
+
+
+                return Ok(model);
+            }
+            return Unauthorized(new ApiResponse(401));
+        }
+
+        return Ok(model);
+    }
+
+    [HttpPost("ResetPassword")]
+    public async Task<ActionResult<UserDto>> ResetPassword(ResetPasswordDto model)
+    {
+        if (ModelState.IsValid)
+        {
+            var user = await userManager.FindByEmailAsync(model.Email);
+
+
+            if (user is not null)
+            {
+                var token = await userManager.GeneratePasswordResetTokenAsync(user);
+                var result = await userManager.ResetPasswordAsync(user, token, model.Password);
+                if (result.Succeeded)
+                    return Ok(model);
+                string errors = string.Join(", ", result.Errors.Select(error => error.Description));
+                return BadRequest(new ApiResponse(400, errors));
+
+            }
+        }
+
+        return Ok(model);
     }
 
     [Authorize]
