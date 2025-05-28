@@ -1,4 +1,5 @@
-﻿using CodeCart.Core.Entities;
+﻿using CodeCart.Core.Entities.Identity;
+using CodeCart.Core.Entities.Identity.Gmail;
 using Microsoft.AspNetCore.Identity;
 
 namespace CodeCart.Core.Services.Contracts.SecurityModule;
@@ -9,6 +10,9 @@ public interface IAuthService
     Task<TokenResult> CreateTokensAsync(AppUser user, UserManager<AppUser> userManager);
     Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken, UserManager<AppUser> userManager);
     Task RevokeUserRefreshTokensAsync(string userId);
+
+    Task<AppUser> SignInWithGoogle(GoogleSignInVM model);
+    Task<AppUser> SignInWithFacebook(FacebookSignInVM model);
 }
 
 public class TokenResult

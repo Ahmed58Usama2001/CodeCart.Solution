@@ -1,7 +1,9 @@
 using CodeCart.API.Extensions;
 using CodeCart.API.Middlewares;
-using CodeCart.Core.Entities;
+using CodeCart.Core.Entities.Identity.Facebook;
+using CodeCart.Core.Entities.Identity.Gmail;
 using CodeCart.Infrastructure.Data;
+using CodeCart.Service;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 
@@ -30,6 +32,15 @@ public class Program
 
         builder.Services.AddApplicationServices();
         builder.Services.AddIdentityServices(builder.Configuration);
+
+        builder.Services.Configure<GoogleAuthConfig>(builder.Configuration.GetSection("Google"));
+        builder.Services.Configure<FacebookAuthConfig>(builder.Configuration.GetSection("Facebook"));
+        builder.Services.AddHttpClient("Facebook", c =>
+        {
+            c.BaseAddress = new Uri("https://graph.facebook.com/v19.0/");
+        });
+        builder.Services.AddHttpClient();
+        builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 
         builder.Services.AddCors();
 

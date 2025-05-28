@@ -1,13 +1,16 @@
 ﻿using AutoMapper;
 using CodeCart.API.DTOs.AccountDtos;
 using CodeCart.API.Errors;
-using CodeCart.Core.Entities;
+using CodeCart.Core.Entities.Identity;
+using CodeCart.Core.Entities.Identity.Gmail;
 using CodeCart.Core.Services.Contracts;
 using CodeCart.Core.Services.Contracts.SecurityModule;
+using CodeCart.Service.SecurityModule;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 
@@ -47,6 +50,64 @@ public class AccountController(SignInManager<AppUser> signInManager, UserManager
             return BadRequest(new ApiResponse(400));
 
         return Ok(true);
+    }
+
+    [HttpPost("GoogleSignIn")]
+    public async Task<ActionResult<UserDto>> GoogleSignIn(GoogleSignInVM model)
+    {
+        try
+        {
+            var result = await authService.SignInWithGoogle(model);
+            if (result != null)
+            {
+                var tokens = await authService.CreateTokensAsync(result, userManager);
+
+                UserDto userDto = new UserDto()
+                {
+                    UserName = result.UserName ?? string.Empty,
+                    Email = result.Email ?? string.Empty,
+                    Token = tokens.AccessToken,
+                    RefreshToken = tokens.RefreshToken
+                };
+
+                return Ok(userDto);
+            }
+            else
+                return BadRequest(new ApiResponse(400));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new ApiResponse(400));
+        }
+    }
+
+    [HttpPost("FacebookSignIn")]
+    public async Task<ActionResult<UserDto>> FacebookSignIn(FacebookSignInVM model)
+    {
+        try
+        {
+            var result = await authService.SignInWithFacebook(model);
+            if (result != null)
+            {
+                var tokens = await authService.CreateTokensAsync(result, userManager);
+
+                UserDto userDto = new UserDto()
+                {
+                    UserName = result.UserName ?? string.Empty,
+                    Email = result.Email ?? string.Empty,
+                    Token = tokens.AccessToken,
+                    RefreshToken = tokens.RefreshToken
+                };
+
+                return Ok(userDto);
+            }
+            else
+                return BadRequest(new ApiResponse(400));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new ApiResponse(400));
+        }
     }
 
     [HttpPost("login")]
