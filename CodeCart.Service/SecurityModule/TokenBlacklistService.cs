@@ -1,8 +1,8 @@
-﻿using CodeCart.Core.Services.Contracts;
+﻿using CodeCart.Core.Services.Contracts.SecurityModule;
 using StackExchange.Redis;
 using System.IdentityModel.Tokens.Jwt;
 
-namespace CodeCart.Service;
+namespace CodeCart.Service.SecurityModule;
 
 public class TokenBlacklistService(IConnectionMultiplexer redis) : ITokenBlacklistService
 {

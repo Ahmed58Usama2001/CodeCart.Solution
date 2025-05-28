@@ -1,9 +1,9 @@
-﻿using CodeCart.Core.Services.Contracts;
+﻿using CodeCart.Core.Services.Contracts.SecurityModule;
 using Microsoft.Extensions.Configuration;
 using StackExchange.Redis;
 using System.Security.Cryptography;
 
-namespace CodeCart.Service;
+namespace CodeCart.Service.SecurityModule;
 
 public class RefreshTokenService(IConnectionMultiplexer redis, IConfiguration configuration) : IRefreshTokenService
 {

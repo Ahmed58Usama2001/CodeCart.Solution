@@ -1,4 +1,4 @@
-﻿namespace CodeCart.Core.Services.Contracts;
+﻿namespace CodeCart.Core.Services.Contracts.SecurityModule;
 
 public interface IRefreshTokenService
 {

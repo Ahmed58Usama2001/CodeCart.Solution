@@ -1,7 +1,7 @@
 ﻿using CodeCart.Core.Entities;
 using Microsoft.AspNetCore.Identity;
 
-namespace CodeCart.Core.Services.Contracts;
+namespace CodeCart.Core.Services.Contracts.SecurityModule;
 
 public interface IAuthService
 {

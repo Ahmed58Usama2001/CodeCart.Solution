@@ -1,7 +1,7 @@
 ﻿using CodeCart.API.DTOs.AccountDtos;
 using CodeCart.API.Errors;
 using CodeCart.Core.Entities;
-using CodeCart.Core.Services.Contracts;
+using CodeCart.Core.Services.Contracts.SecurityModule;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

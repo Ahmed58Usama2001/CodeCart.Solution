@@ -1,5 +1,5 @@
 ﻿using CodeCart.API.Errors;
-using CodeCart.Core.Services.Contracts;
+using CodeCart.Core.Services.Contracts.SecurityModule;
 using System.Net;
 using System.Text.Json;
 

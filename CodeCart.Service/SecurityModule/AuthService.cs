@@ -1,14 +1,13 @@
 ﻿using CodeCart.Core.Entities;
-using CodeCart.Core.Services.Contracts;
+using CodeCart.Core.Services.Contracts.SecurityModule;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 
-namespace CodeCart.Service;
+namespace CodeCart.Service.SecurityModule;
 
 public class AuthService(IConfiguration configuration, IRefreshTokenService refreshTokenService) : IAuthService
 {
@@ -97,5 +96,5 @@ public class AuthService(IConfiguration configuration, IRefreshTokenService refr
         await refreshTokenService.RevokeAllUserRefreshTokensAsync(userId);
     }
 
-  
+
 }

@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using CodeCart.Core.Services.Contracts;
-using CodeCart.Service;
+using CodeCart.Service.SecurityModule;
+using CodeCart.Core.Services.Contracts.SecurityModule;
 
 namespace CodeCart.API.Extensions;
 
