@@ -1,4 +1,3 @@
-
 using CodeCart.API.Extensions;
 using CodeCart.API.Middlewares;
 using CodeCart.Core.Entities;
@@ -17,27 +16,27 @@ public class Program
         // Add services to the container
         builder.Services.AddControllers();
         builder.Services.AddSwaggerServices();
+
         builder.Services.AddDbContext<StoreContext>(options => {
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
         });
+
         builder.Services.AddSingleton<IConnectionMultiplexer>((config) =>
         {
             var connectionString = builder.Configuration.GetConnectionString("Redis") ?? throw new Exception("Cannot get redis connections string ");
-            var configuration = ConfigurationOptions.Parse(connectionString,true);
-
+            var configuration = ConfigurationOptions.Parse(connectionString, true);
             return ConnectionMultiplexer.Connect(configuration);
         });
-        builder.Services.AddApplicationServices();
 
-        builder.Services.AddAuthorization();
-        builder.Services.AddIdentityApiEndpoints<AppUser>()
-            .AddEntityFrameworkStores<StoreContext>();
+        builder.Services.AddApplicationServices();
+        builder.Services.AddIdentityServices(builder.Configuration);
 
         builder.Services.AddCors();
 
         var app = builder.Build();
 
         app.UseMiddleware<ExceptionMiddleware>();
+        app.UseMiddleware<JwtBlacklistMiddleware>(); // Add JWT blacklist middleware
 
         app.UseCors(x => x.AllowAnyHeader()
             .AllowAnyMethod()
@@ -67,10 +66,9 @@ public class Program
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();
+        app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
-        app.MapIdentityApi<AppUser>();
         app.Run();
-
     }
 }
