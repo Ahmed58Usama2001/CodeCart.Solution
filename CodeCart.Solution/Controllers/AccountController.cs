@@ -52,6 +52,26 @@ public class AccountController(SignInManager<AppUser> signInManager, UserManager
         return Ok(true);
     }
 
+
+    [HttpGet("ConfirmEmail")]
+    public async Task<IActionResult> ConfirmEmail(string userId, string code)
+    {
+        if (userId == null || code == null)
+            return BadRequest(new ApiResponse(400));
+
+        var user = await userManager.FindByIdAsync(userId);
+        if (user is null)
+            Unauthorized(new ApiResponse(401));
+
+        var decodedCode = System.Web.HttpUtility.UrlDecode(code);
+        var result = await userManager.ConfirmEmailAsync(user!, decodedCode);
+
+        var status = result.Succeeded ? true
+            : false;
+
+        return Ok(status);
+    }
+
     [HttpPost("GoogleSignIn")]
     public async Task<ActionResult<UserDto>> GoogleSignIn(GoogleSignInVM model)
     {
