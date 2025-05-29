@@ -32,45 +32,21 @@ public class AccountController(SignInManager<AppUser> signInManager, UserManager
             UserName = registerDto.Email.Split('@')[0]
         };
         var result = await userManager.CreateAsync(user, registerDto.Password);
-        if (!result.Succeeded) return BadRequest(new ApiResponse(400));
 
-        var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
-        var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = UrlEncoder.Default.Encode(code) }, "http", configuration["ClientBaseUrl"]);
-
-        var bodyUrl = $"{Directory.GetCurrentDirectory()}\\wwwroot\\TempleteHtml\\2-StepVerificationTemplete.html";
-        var body = new StreamReader(bodyUrl);
-        var mailText = body.ReadToEnd();
-        body.Close();
-
-        mailText = mailText.Replace("[username]", user.UserName).Replace("[LinkHere]",
-            HtmlEncoder.Default.Encode(callbackUrl!));
-
-        var emailResult = await mailService.SendEmailAsync(registerDto.Email, "Confirmation Email", mailText);
-        if (emailResult == false)
+        if (!result.Succeeded)
             return BadRequest(new ApiResponse(400));
 
-        return Ok(true);
+        var tokens = await authService.CreateTokensAsync(user, userManager);
+
+        return Ok(new UserDto
+        {
+            UserName = user.UserName ?? string.Empty,
+            Email = user.Email ?? string.Empty,
+            Token = tokens.AccessToken,
+            RefreshToken = tokens.RefreshToken
+        });
     }
 
-
-    [HttpGet("ConfirmEmail")]
-    public async Task<IActionResult> ConfirmEmail(string userId, string code)
-    {
-        if (userId == null || code == null)
-            return BadRequest(new ApiResponse(400));
-
-        var user = await userManager.FindByIdAsync(userId);
-        if (user is null)
-            Unauthorized(new ApiResponse(401));
-
-        var decodedCode = System.Web.HttpUtility.UrlDecode(code);
-        var result = await userManager.ConfirmEmailAsync(user!, decodedCode);
-
-        var status = result.Succeeded ? true
-            : false;
-
-        return Ok(status);
-    }
 
     [HttpPost("GoogleSignIn")]
     public async Task<ActionResult<UserDto>> GoogleSignIn(GoogleSignInVM model)
