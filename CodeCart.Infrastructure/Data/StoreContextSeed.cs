@@ -19,5 +19,19 @@ public static class StoreContextSeed
                 await _context.SaveChangesAsync();
             }
         }
+        
+        if(_context.DeliveryMethods.Count()==0)
+        {
+            var dmData = File.ReadAllText("../CodeCart.Infrastructure/Data/DataSeed/delivery.json");
+
+            var methods = JsonSerializer.Deserialize<List<DeliveryMethod>>(dmData);
+
+            if(methods?.Count()>0)
+            { await  _context.AddRangeAsync(methods);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
+
+
 }
