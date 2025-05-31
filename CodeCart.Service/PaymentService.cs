@@ -7,25 +7,24 @@ using Stripe;
 namespace CodeCart.Service;
 
 public class PaymentService(IConfiguration configuration,
-        CartService cartService,
+        ICartService cartService,
         IGenericRepository<Core.Entities.Product> productRepo,
         IGenericRepository<DeliveryMethod> deliveryMethodsRepo) : IPaymentService
 {
     public async Task<ShoppingCart?> CreateOrUpdatePaymentIntent(string cartId)
     {
-        StripeConfiguration.ApiKey = configuration["StripeSettings:SecretKey"] ?? throw new InvalidOperationException("Stripe secret key is not configured.");
+        StripeConfiguration.ApiKey = configuration["StripeSettings:SecretKey"] ??
+            throw new InvalidOperationException("Stripe secret key is not configured.");
 
         var cart = await cartService.GetCartAsync(cartId);
         if (cart == null) return null;
 
-        var shippingPrice = 00m;
-
+        var shippingPrice = 0m;
         if (cart.DeliveryMethodId.HasValue)
         {
             var deliveryMethod = await deliveryMethodsRepo.GetByIdAsync(cart.DeliveryMethodId.Value);
             if (deliveryMethod is null)
                 return null;
-
             shippingPrice = deliveryMethod.Price;
         }
 
@@ -33,7 +32,6 @@ public class PaymentService(IConfiguration configuration,
         {
             var product = await productRepo.GetByIdAsync(item.ProductId);
             if (product is null) return null;
-
             item.Price = product.Price;
         }
 
@@ -44,12 +42,13 @@ public class PaymentService(IConfiguration configuration,
         {
             var options = new PaymentIntentCreateOptions
             {
-                Amount =(long) cart.Items.Sum(i=>i.Quantity*(i.Price *100)) + (long)(shippingPrice * 100),
+                Amount = (long)cart.Items.Sum(i => i.Quantity * (i.Price * 100)) + (long)(shippingPrice * 100),
                 Currency = "usd",
                 PaymentMethodTypes = new List<string> { "card" },
             };
-
             intent = await service.CreateAsync(options);
+            cart.PaymentIntentId = intent.Id; 
+            cart.ClientSecret = intent.ClientSecret; 
         }
         else
         {
@@ -61,7 +60,6 @@ public class PaymentService(IConfiguration configuration,
         }
 
         await cartService.SetCartAsync(cart);
-
         return cart;
     }
 }
