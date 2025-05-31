@@ -13,6 +13,7 @@ public static class ApplicationServicesExtension
     {
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IMailingService , MailingService>();
+        services.AddScoped<IPaymentService , PaymentService>();
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddSingleton<ICartService, CartService>();
         services.AddAutoMapper(typeof(MappingProfiles));
