@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CodeCart.API.DTOs.AccountDtos;
 using CodeCart.API.Errors;
+using CodeCart.Core.Entities;
 using CodeCart.Core.Entities.Identity;
 using CodeCart.Core.Entities.Identity.Gmail;
 using CodeCart.Core.Services.Contracts;
@@ -257,22 +258,34 @@ public class AccountController(SignInManager<AppUser> signInManager, UserManager
     }
 
     [Authorize]
-    [HttpPut("address")]
-    public async Task<ActionResult<AddressDto>> UpdateUserAddress(AddressDto updatedAddress)
+    [HttpPost("address")]
+    public async Task<ActionResult<AddressDto>> CreateOrUpdateUserAddress(AddressDto addressDto)
     {
         var user = await FindUserWithAddressAsync(userManager, User);
 
-        if (user.Address == null)
-            return NotFound(new ApiResponse(404, "The user has no address"));
+        if (user == null)
+            return NotFound(new ApiResponse(404, "User not found"));
 
-        mapper.Map(updatedAddress, user.Address);
+        if (user.Address == null)
+        {
+            // Map new address from DTO
+            user.Address = mapper.Map<Address>(addressDto);
+        }
+        else
+        {
+            // Update existing address
+            mapper.Map(addressDto, user.Address);
+        }
 
         var result = await userManager.UpdateAsync(user);
 
         if (!result.Succeeded)
-            return BadRequest(new ApiResponse(400));
+            return BadRequest(new ApiResponse(400, "Failed to update user"));
 
-        return Ok(updatedAddress);
+        // Map back the Address to AddressDto to ensure it's in sync (e.g., if Address has ID or formatted fields)
+        var returnDto = mapper.Map<AddressDto>(user.Address);
+
+        return Ok(returnDto);
     }
 
 
