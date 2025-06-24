@@ -8,32 +8,23 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CodeCart.API.Controllers;
 
-public class ProductsController : BaseApiController
+public class ProductsController(IUnitOfWork unitOfWork , IMapper mapper, IProductRepository productRepo) : BaseApiController
 {
-    private readonly IProductRepository _productRepository;
-    private readonly IMapper _mapper;
-
-    public ProductsController(IProductRepository productRepository, IMapper mapper)
-    {
-        _productRepository = productRepository;
-        _mapper = mapper;
-    }
-
     [HttpGet]
     public async Task<ActionResult<Pagination<ProductToReturnDto>>> GetProducts(
        [FromQuery] ProductSpecificationsParams specParams)
     {
         var specs = new ProductSpecifications(specParams);
-        var count = await _productRepository.GetCountAsync(new ProductsForCountSpecifications(specParams));
+        var count = await unitOfWork.Repository<Product>().GetCountAsync(new ProductsForCountSpecifications(specParams));
 
         var parameters = new PagedResultParameters<Product, ProductToReturnDto>
         {
-            Repository = _productRepository,
+            Repository = unitOfWork.Repository<Product>(),
             Specification = specs,
             PageIndex = specParams.PageIndex,
             PageSize = specParams.PageSize,
             Count = count,
-            Mapper = _mapper
+            Mapper = mapper
         };
 
         return await CreatePagedResult(parameters);
@@ -43,57 +34,57 @@ public class ProductsController : BaseApiController
     [HttpGet("{id}")]
     public async Task<ActionResult<ProductToReturnDto>> GetProduct(int id)
     {
-        var product = await _productRepository.GetByIdAsync(id);
+        var product = await unitOfWork.Repository<Product>().GetByIdAsync(id);
 
         if (product == null) return NotFound();
 
-        return _mapper.Map<ProductToReturnDto>(product);
+        return mapper.Map<ProductToReturnDto>(product);
     }
 
     [HttpPost]
     public async Task<ActionResult<ProductToReturnDto>> CreateProduct(CreateProductDto productDto)
     {
-        var product = _mapper.Map<Product>(productDto);
+        var product = mapper.Map<Product>(productDto);
 
-        await _productRepository.CreateAsync(product);
-        var saved = await _productRepository.SaveAllAsync();
+        await unitOfWork.CompleteAsync();
+        var saved = await unitOfWork.CompleteAsync();
 
-        if (!saved) return BadRequest("Problem creating product");
+        if (saved>0) return BadRequest("Problem creating product");
 
         return CreatedAtAction(
             nameof(GetProduct),
             new { id = product.Id },
-            _mapper.Map<ProductToReturnDto>(product));
+            mapper.Map<ProductToReturnDto>(product));
     }
 
     [HttpPut("{id}")]
     public async Task<ActionResult<ProductToReturnDto>> UpdateProduct(int id, UpdateProductDto productDto)
     {
-        var product = await _productRepository.GetByIdAsync(id);
+        var product = await unitOfWork.Repository<Product>().GetByIdAsync(id);
 
         if (product == null) return NotFound();
 
-        _mapper.Map(productDto, product);
-        _productRepository.Update(product);
+        mapper.Map(productDto, product);
+        unitOfWork.Repository<Product>().Update(product);
 
-        var saved = await _productRepository.SaveAllAsync();
+        var saved = await unitOfWork.CompleteAsync();
 
-        if (!saved) return BadRequest("Problem updating product");
+        if (saved>0) return BadRequest("Problem updating product");
 
-        return Ok(_mapper.Map<ProductToReturnDto>(product));
+        return Ok(mapper.Map<ProductToReturnDto>(product));
     }
 
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteProduct(int id)
     {
-        var product = await _productRepository.GetByIdAsync(id);
+        var product = await unitOfWork.Repository<Product>().GetByIdAsync(id);
 
         if (product == null) return NotFound();
 
-        _productRepository.Delete(product);
-        var saved = await _productRepository.SaveAllAsync();
+        unitOfWork.Repository<Product>().Delete(product);
+        var saved = await unitOfWork.CompleteAsync();
 
-        if (!saved) return BadRequest("Problem deleting product");
+        if (saved > 0) return BadRequest("Problem deleting product");
 
         return NoContent();
     }
@@ -101,12 +92,12 @@ public class ProductsController : BaseApiController
     [HttpGet("brands")]
     public async Task<ActionResult<IReadOnlyList<string>>> GetProductBrands()
     {
-        return Ok(await _productRepository.GetProductBrandsAsync());
+        return Ok(await productRepo.GetProductBrandsAsync());
     }
 
     [HttpGet("types")]
     public async Task<ActionResult<IReadOnlyList<string>>> GetProductTypes()
     {
-        return Ok(await _productRepository.GetProductTypesAsync());
+        return Ok(await productRepo.GetProductTypesAsync());
     }
 }
