@@ -1,30 +1,29 @@
-﻿using CodeCart.API.DTOs;
+﻿using AutoMapper;
+using CodeCart.API.DTOs;
 using CodeCart.Core.Entities;
 using CodeCart.Core.Entities.OrderAggregation;
 using CodeCart.Core.Repositories.Contracts;
 using CodeCart.Core.Services.Contracts;
 using CodeCart.Core.Specifications.OrderSpecs;
-using CodeCart.Core.Specifications.ProductSpecs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.FlowAnalysis;
 using System.Security.Claims;
 
 namespace CodeCart.API.Controllers;
 
 [Authorize]
-public class OrdersController(ICartService cartService, IUnitOfWork unitOfWork) : BaseApiController
+public class OrdersController(ICartService cartService, IUnitOfWork unitOfWork, IMapper mapper) : BaseApiController
 {
     [HttpPost]
-    public async Task<ActionResult<Order>> CreateOrder(CreateOrderDto createOrderDto)
+    public async Task<ActionResult<OrderToReturnDto>> CreateOrder(CreateOrderDto createOrderDto)
     {
         var email = User.FindFirstValue(ClaimTypes.Email);
-
         if (string.IsNullOrEmpty(email))
             return BadRequest("User email not found");
 
         var cart = await cartService.GetCartAsync(createOrderDto.CartId);
         if (cart == null) return BadRequest("Cart not found");
+
         if (cart.PaymentIntentId == null) return BadRequest("No Payment Intent for this order");
 
         var items = new List<OrderItem>();
@@ -46,6 +45,7 @@ public class OrdersController(ICartService cartService, IUnitOfWork unitOfWork) 
                 Price = productItem.Price,
                 Quantity = item.Quantity,
             };
+
             items.Add(orderItem);
         }
 
@@ -66,40 +66,42 @@ public class OrdersController(ICartService cartService, IUnitOfWork unitOfWork) 
         await unitOfWork.Repository<Order>().CreateAsync(order);
 
         if (await unitOfWork.CompleteAsync() > 0)
-            return order;
+        {
+            var orderToReturn = mapper.Map<OrderToReturnDto>(order);
+            return Ok(orderToReturn);
+        }
         else
             return BadRequest("Problem creating the order");
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<Order>>> GetOrdersForUser()
+    public async Task<ActionResult<IReadOnlyList<OrderToReturnDto>>> GetOrdersForUser()
     {
         var email = User.FindFirstValue(ClaimTypes.Email);
         if (string.IsNullOrEmpty(email))
             return BadRequest("User email not found");
 
         var spec = new OrderSpecifications(email);
-
         var orders = await unitOfWork.Repository<Order>().GetAllWithSpecAsync(spec);
 
-        return Ok(orders);
+        var ordersToReturn = mapper.Map<IReadOnlyList<OrderToReturnDto>>(orders);
+        return Ok(ordersToReturn);
     }
 
-
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<Order>> GetOrderByIdForUser(int id)
+    public async Task<ActionResult<OrderToReturnDto>> GetOrderByIdForUser(int id)
     {
         var email = User.FindFirstValue(ClaimTypes.Email);
         if (string.IsNullOrEmpty(email))
             return BadRequest("User email not found");
 
-        var spec = new OrderSpecifications(email,id);
-
-        var order = await unitOfWork.Repository<Order>().GetByIdAsync(id);
+        var spec = new OrderSpecifications(email, id);
+        var order = await unitOfWork.Repository<Order>().GetEntityWithSpecAsync(spec);
 
         if (order is null)
             return NotFound("Order is not found");
 
-        return Ok(order);
+        var orderToReturn = mapper.Map<OrderToReturnDto>(order);
+        return Ok(orderToReturn);
     }
 }
