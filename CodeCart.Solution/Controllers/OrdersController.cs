@@ -3,8 +3,11 @@ using CodeCart.Core.Entities;
 using CodeCart.Core.Entities.OrderAggregation;
 using CodeCart.Core.Repositories.Contracts;
 using CodeCart.Core.Services.Contracts;
+using CodeCart.Core.Specifications.OrderSpecs;
+using CodeCart.Core.Specifications.ProductSpecs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.FlowAnalysis;
 using System.Security.Claims;
 
 namespace CodeCart.API.Controllers;
@@ -66,5 +69,37 @@ public class OrdersController(ICartService cartService, IUnitOfWork unitOfWork) 
             return order;
         else
             return BadRequest("Problem creating the order");
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IReadOnlyList<Order>>> GetOrdersForUser()
+    {
+        var email = User.FindFirstValue(ClaimTypes.Email);
+        if (string.IsNullOrEmpty(email))
+            return BadRequest("User email not found");
+
+        var spec = new OrderSpecifications(email);
+
+        var orders = await unitOfWork.Repository<Order>().GetAllWithSpecAsync(spec);
+
+        return Ok(orders);
+    }
+
+
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<Order>> GetOrderByIdForUser(int id)
+    {
+        var email = User.FindFirstValue(ClaimTypes.Email);
+        if (string.IsNullOrEmpty(email))
+            return BadRequest("User email not found");
+
+        var spec = new OrderSpecifications(email,id);
+
+        var order = await unitOfWork.Repository<Order>().GetByIdAsync(id);
+
+        if (order is null)
+            return NotFound("Order is not found");
+
+        return Ok(order);
     }
 }

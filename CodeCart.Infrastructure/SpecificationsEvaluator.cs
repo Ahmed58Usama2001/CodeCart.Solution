@@ -1,5 +1,6 @@
 ﻿using CodeCart.Core.Entities;
 using CodeCart.Core.Specifications;
+using Microsoft.EntityFrameworkCore;
 
 namespace CodeCart.Infrastructure;
 
@@ -19,6 +20,10 @@ public static class SpecificationsEvaluator<T> where T : BaseEntity
 
         if(specs.IsPaginationEnabled)
             query = query.Skip(specs.Skip).Take(specs.Take);
+
+        query = specs.Includes.Aggregate(query, (currentQuery, includeExpression) => currentQuery.Include(includeExpression));
+        query = specs.IncludeNames.Aggregate(query, (currentQuery, includeExpression) => currentQuery.Include(includeExpression));
+
 
         return query;
     }
