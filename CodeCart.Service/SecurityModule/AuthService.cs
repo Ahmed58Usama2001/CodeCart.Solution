@@ -1,10 +1,5 @@
 ﻿using CodeCart.Core.Entities.Identity;
-using CodeCart.Core.Entities.Identity.Enums;
-using CodeCart.Core.Entities.Identity.Gmail;
-using CodeCart.Core.Services.Contract.AccountModuleContracts;
 using CodeCart.Core.Services.Contracts.SecurityModule;
-using CodeCart.Infrastructure.Data;
-using CodeCart.Service.AuthModuleService;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -14,24 +9,8 @@ using System.Text;
 
 namespace CodeCart.Service.SecurityModule;
 
-public class AuthService(IConfiguration configuration, IRefreshTokenService refreshTokenService,
-    UserManager<AppUser> userManager,
-    StoreContext context,
-    IGoogleAuthService googleAuthService,
-    IFacebookAuthService facebookAuthService) : IAuthService
+public class AuthService(IConfiguration configuration) : IAuthService
 {
-    public async Task<TokenResult> CreateTokensAsync(AppUser user, UserManager<AppUser> userManager)
-    {
-        var accessToken = await CreateAccessTokenAsync(user, userManager);
-        var refreshToken = await refreshTokenService.GenerateRefreshTokenAsync(user.Id);
-
-        return new TokenResult
-        {
-            AccessToken = accessToken,
-            RefreshToken = refreshToken
-        };
-    }
-
     public async Task<string> CreateAccessTokenAsync(AppUser user, UserManager<AppUser> userManager)
     {
         var authClaims = new List<Claim>()
@@ -63,87 +42,4 @@ public class AuthService(IConfiguration configuration, IRefreshTokenService refr
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
-
-    public async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken, UserManager<AppUser> userManager)
-    {
-        var tokenValidationResult = await refreshTokenService.ValidateRefreshTokenAsync(refreshToken);
-
-        if (!tokenValidationResult.IsValid)
-        {
-            return new RefreshTokenResult
-            {
-                IsSuccess = false,
-                ErrorMessage = "Invalid refresh token"
-            };
-        }
-
-        var user = await userManager.FindByIdAsync(tokenValidationResult.UserId);
-        if (user == null)
-        {
-            return new RefreshTokenResult
-            {
-                IsSuccess = false,
-                ErrorMessage = "User not found"
-            };
-        }
-
-        await refreshTokenService.RevokeRefreshTokenAsync(refreshToken);
-
-        var tokens = await CreateTokensAsync(user, userManager);
-
-        return new RefreshTokenResult
-        {
-            IsSuccess = true,
-            AccessToken = tokens.AccessToken,
-            RefreshToken = tokens.RefreshToken,
-            User = user
-        };
-    }
-
-    public async Task RevokeUserRefreshTokensAsync(string userId)
-    {
-        await refreshTokenService.RevokeAllUserRefreshTokensAsync(userId);
-    }
-
-    public async Task<AppUser> SignInWithGoogle(GoogleSignInVM model)
-    {
-        var response = await googleAuthService.GoogleSignIn(model);
-
-        if (response is null)
-            return new AppUser();
-
-        return response;
-    }
-
-    public async Task<AppUser> SignInWithFacebook(FacebookSignInVM model)
-    {
-        var validatedFbToken = await facebookAuthService.ValidateFacebookToken(model.AccessToken);
-
-        if (validatedFbToken is null)
-            return new AppUser();
-
-        var userInfo = await facebookAuthService.GetFacebookUserInformation(model.AccessToken);
-
-        if (userInfo is null)
-            return new AppUser();
-
-        var userToBeCreated = new CreateUserFromSocialLogin
-        {
-            UserName = userInfo.Name,
-            Email = userInfo.Email,
-            ProfilePicture = userInfo.Picture.Data.Url.AbsoluteUri,
-            LoginProviderSubject = userInfo.Id,
-        };
-
-        var user = await userManager.CreateUserFromSocialLogin(context, userToBeCreated, LoginProvider.Facebook);
-
-        if (user is null)
-            return new AppUser();
-
-        return user;
-
-
-    }
-
-
 }

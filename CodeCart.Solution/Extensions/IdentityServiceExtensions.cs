@@ -6,8 +6,6 @@ using Microsoft.IdentityModel.Tokens;
 using CodeCart.Service.SecurityModule;
 using CodeCart.Core.Services.Contracts.SecurityModule;
 using CodeCart.Core.Entities.Identity;
-using CodeCart.Core.Services.Contract.AccountModuleContracts;
-using CodeCart.Service.AuthModuleService;
 
 namespace CodeCart.API.Extensions;
 
@@ -16,9 +14,6 @@ public static class IdentityServiceExtensions
     public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IAuthService, AuthService>();
-        services.AddScoped(typeof(IGoogleAuthService), typeof(GoogleAuthService));
-        services.AddScoped<IFacebookAuthService, FacebookAuthService>();
-        services.AddSingleton<IRefreshTokenService, RefreshTokenService>();
         services.AddSingleton<ITokenBlacklistService, TokenBlacklistService>();
 
         services.AddIdentity<AppUser, IdentityRole>(options =>
