@@ -20,7 +20,7 @@ public class MappingProfiles : Profile
             .ForMember(dest => dest.DeliveryMethod, opt => opt.MapFrom(src => src.DeliveryMethod.ShortName))
             .ForMember(dest => dest.Total, opt => opt.MapFrom(src => src.Subtotal + src.DeliveryMethod.Price))
             .ForMember(dest => dest.ShippingPrice, opt => opt.MapFrom(src => src.DeliveryMethod.Price))
-            .ForMember(dest => dest.OrderStatus, opt => opt.MapFrom(src => src.OrderStatus.ToString()));
+            .ForMember(dest => dest.OrderStatus, opt => opt.MapFrom(src => src.Status.ToString()));
 
         CreateMap<OrderItem, OrderItemDto>()
             .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.ItemOrdered.ProductId))

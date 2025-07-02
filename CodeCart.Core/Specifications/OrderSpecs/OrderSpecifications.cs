@@ -22,4 +22,10 @@ public class OrderSpecifications : BaseSpecifications<Order>
 
         AddOrderByDesc(o => o.OrderDate);
     }
+
+    public OrderSpecifications(string paymentIntentId, bool isPaymentIntent) : base(o => o.PaymentIntentId == paymentIntentId)
+    {
+        AddInclude(o => o.DeliveryMethod);
+        AddInclude(o => o.OrderItems);
+    }
 }
