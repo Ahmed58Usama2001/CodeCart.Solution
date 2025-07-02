@@ -5,6 +5,7 @@ using CodeCart.Infrastructure.Data;
 using CodeCart.Service;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace CodeCart.API;
 
@@ -31,26 +32,31 @@ public class Program
 
         builder.Services.AddApplicationServices();
         builder.Services.AddIdentityServices(builder.Configuration);
-
         builder.Services.AddHttpClient();
         builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 
-        builder.Services.AddCors();
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("SignalRCorsPolicy", policy =>
+            {
+                policy.WithOrigins("http://localhost:4200", "https://localhost:4200")
+                      .AllowAnyHeader()
+                      .AllowAnyMethod()
+                      .AllowCredentials()
+                      .SetIsOriginAllowed((host) => true); 
+            });
+        });
 
         var app = builder.Build();
 
         app.UseMiddleware<ExceptionMiddleware>();
-        app.UseMiddleware<JwtBlacklistMiddleware>(); // Add JWT blacklist middleware
+        app.UseMiddleware<JwtBlacklistMiddleware>();
 
-        app.UseCors(x => x.AllowAnyHeader()
-            .AllowAnyMethod().
-            AllowCredentials()
-            .WithOrigins("http://localhost:4200", "https://localhost:4200"));
+        app.UseCors("SignalRCorsPolicy");
 
         app.UseAuthentication();
         app.UseAuthorization();
 
-        // Apply migrations
         using (var scope = app.Services.CreateScope())
         {
             var services = scope.ServiceProvider;
@@ -76,7 +82,9 @@ public class Program
         app.UseStaticFiles();
 
         app.MapControllers();
-        app.MapHub<NotificationHub>("/hub/notifications");
+
+        app.MapHub<NotificationHub>("/hub/notifications")
+           .RequireCors("SignalRCorsPolicy");
 
         app.Run();
     }
