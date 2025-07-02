@@ -43,7 +43,8 @@ public class Program
         app.UseMiddleware<JwtBlacklistMiddleware>(); // Add JWT blacklist middleware
 
         app.UseCors(x => x.AllowAnyHeader()
-            .AllowAnyMethod()
+            .AllowAnyMethod().
+            AllowCredentials()
             .WithOrigins("http://localhost:4200", "https://localhost:4200"));
 
         app.UseAuthentication();

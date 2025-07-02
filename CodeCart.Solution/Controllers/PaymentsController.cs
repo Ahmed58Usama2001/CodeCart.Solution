@@ -53,7 +53,7 @@ public class PaymentsController(IPaymentService paymentService,
                 return BadRequest("Invalid event data");
             }
 
-            await HandlePaymentIntentSucceded(intent);
+            await HandlePaymentIntentSucceeded(intent);
 
             return Ok();
         }
@@ -69,7 +69,7 @@ public class PaymentsController(IPaymentService paymentService,
         }
     }
 
-    private async Task HandlePaymentIntentSucceded(PaymentIntent intent)
+    private async Task HandlePaymentIntentSucceeded(PaymentIntent intent)
     {
         if(intent.Status == "succeeded")
         {
@@ -92,7 +92,7 @@ public class PaymentsController(IPaymentService paymentService,
 
             await unitOfWork.CompleteAsync();
 
-            var connectionId = NotificationHub.GetConnectiodIdByEmail(order.BuyerEmail);
+            var connectionId = NotificationHub.GetConnectionIdByEmail(order.BuyerEmail);
 
             if (connectionId is null)        
                 logger.LogWarning("No connection found for email: {Email}", order.BuyerEmail);

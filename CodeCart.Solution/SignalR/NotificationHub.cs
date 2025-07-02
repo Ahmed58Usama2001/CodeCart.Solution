@@ -31,7 +31,7 @@ public class NotificationHub:Hub
         return base.OnDisconnectedAsync(exception);
     }
 
-    public static string? GetConnectiodIdByEmail(string email)
+    public static string? GetConnectionIdByEmail(string email)
     {
         if (string.IsNullOrEmpty(email)) return null;
 
