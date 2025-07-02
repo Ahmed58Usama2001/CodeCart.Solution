@@ -1,10 +1,14 @@
-﻿using CodeCart.Core.Entities;
+﻿using AutoMapper;
+using CodeCart.API.DTOs;
+using CodeCart.API.SignalR;
+using CodeCart.Core.Entities;
 using CodeCart.Core.Entities.OrderAggregation;
 using CodeCart.Core.Repositories.Contracts;
 using CodeCart.Core.Services.Contracts;
 using CodeCart.Core.Specifications.OrderSpecs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Stripe;
 
 namespace CodeCart.API.Controllers;
@@ -12,7 +16,9 @@ namespace CodeCart.API.Controllers;
 public class PaymentsController(IPaymentService paymentService,
     IUnitOfWork unitOfWork,
     ILogger<PaymentsController> logger,
-    IConfiguration configuration) : BaseApiController
+    IConfiguration configuration,
+    IHubContext<NotificationHub> hubContext,
+    IMapper mapper) : BaseApiController
 {
     private readonly string _whSecret = configuration["StripeSettings:WhSecret"]!;
 
@@ -85,6 +91,14 @@ public class PaymentsController(IPaymentService paymentService,
             }
 
             await unitOfWork.CompleteAsync();
+
+            var connectionId = NotificationHub.GetConnectiodIdByEmail(order.BuyerEmail);
+
+            if (connectionId is null)        
+                logger.LogWarning("No connection found for email: {Email}", order.BuyerEmail);
+
+            await hubContext.Clients.Client(connectionId!).SendAsync("OrderCompletionNotification" , mapper.Map<Order , OrderToReturnDto>(order));
+
         }
 
     }

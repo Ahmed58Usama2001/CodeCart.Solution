@@ -1,5 +1,6 @@
 using CodeCart.API.Extensions;
 using CodeCart.API.Middlewares;
+using CodeCart.API.SignalR;
 using CodeCart.Infrastructure.Data;
 using CodeCart.Service;
 using Microsoft.EntityFrameworkCore;
@@ -45,6 +46,9 @@ public class Program
             .AllowAnyMethod()
             .WithOrigins("http://localhost:4200", "https://localhost:4200"));
 
+        app.UseAuthentication();
+        app.UseAuthorization();
+
         // Apply migrations
         using (var scope = app.Services.CreateScope())
         {
@@ -69,9 +73,10 @@ public class Program
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();
-        app.UseAuthentication();
-        app.UseAuthorization();
+
         app.MapControllers();
+        app.MapHub<NotificationHub>("/hub/notifications");
+
         app.Run();
     }
 }

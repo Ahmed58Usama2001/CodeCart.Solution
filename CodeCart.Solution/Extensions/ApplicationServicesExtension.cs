@@ -19,6 +19,8 @@ public static class ApplicationServicesExtension
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+        services.AddSignalR();
+
         services.AddSingleton<ICartService, CartService>();
 
         services.AddAutoMapper(typeof(MappingProfiles));
