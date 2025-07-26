@@ -4,6 +4,7 @@ using CodeCart.API.Helpers;
 using CodeCart.Core.Entities;
 using CodeCart.Core.Repositories.Contracts;
 using CodeCart.Core.Specifications.ProductSpecs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CodeCart.API.Controllers;
@@ -41,6 +42,7 @@ public class ProductsController(IUnitOfWork unitOfWork , IMapper mapper, IProduc
         return mapper.Map<ProductToReturnDto>(product);
     }
 
+    [Authorize(Roles ="Admin")]
     [HttpPost]
     public async Task<ActionResult<ProductToReturnDto>> CreateProduct(CreateProductDto productDto)
     {
@@ -57,6 +59,7 @@ public class ProductsController(IUnitOfWork unitOfWork , IMapper mapper, IProduc
             mapper.Map<ProductToReturnDto>(product));
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id}")]
     public async Task<ActionResult<ProductToReturnDto>> UpdateProduct(int id, UpdateProductDto productDto)
     {
@@ -74,6 +77,7 @@ public class ProductsController(IUnitOfWork unitOfWork , IMapper mapper, IProduc
         return Ok(mapper.Map<ProductToReturnDto>(product));
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteProduct(int id)
     {

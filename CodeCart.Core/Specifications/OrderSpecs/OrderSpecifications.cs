@@ -28,4 +28,32 @@ public class OrderSpecifications : BaseSpecifications<Order>
         AddInclude(o => o.DeliveryMethod);
         AddInclude(o => o.OrderItems);
     }
+
+    public OrderSpecifications(OrderSpecParams specParams):base(
+        x => (string.IsNullOrEmpty(specParams.Status) || x.Status == ParseStatus(specParams.Status)) )
+    {
+        AddInclude(o => o.DeliveryMethod);
+        AddInclude(o => o.OrderItems);
+
+        ApplyPagination(specParams.PageSize * (specParams.PageIndex - 1), specParams.PageSize);
+
+        AddOrderByDesc(o => o.OrderDate);
+    }
+
+    public OrderSpecifications( int id)
+      : base(o => o.Id == id)
+    {
+        AddInclude(o => o.DeliveryMethod);
+        AddInclude(o => o.OrderItems);
+
+        AddOrderByDesc(o => o.OrderDate);
+    }
+
+    private static OrderStatus? ParseStatus(string status)
+    {
+        if(Enum.TryParse<OrderStatus>(status, true, out var parsedStatus))
+            return parsedStatus;
+        
+        return null;
+    }
 }

@@ -85,18 +85,19 @@ public class AccountController(SignInManager<AppUser> signInManager, UserManager
 
     [Authorize]
     [HttpGet("get-current-user")]
-    public async Task<ActionResult<UserDto>> GetCurrentUser()
+    public async Task<ActionResult> GetCurrentUser()
     {
         var user = await FindUserWithAddressAsync(userManager, User);
         if (user == null) return Unauthorized(new ApiResponse(401));
 
         var token = await authService.CreateAccessTokenAsync(user, userManager);
 
-        return Ok(new UserDto()
+        return Ok(new 
         {
             UserName = user?.UserName ?? string.Empty,
             Email = user?.Email ?? string.Empty,
             Address = user?.Address is not null ? mapper.Map<AddressDto>(user.Address) : null!,
+            Roles = User.FindFirstValue(ClaimTypes.Role),
             Token = token
         });
     }

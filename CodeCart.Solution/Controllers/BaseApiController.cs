@@ -19,7 +19,7 @@ public class BaseApiController : ControllerBase
         return Ok(new Pagination<TDto>(
             parameters.PageIndex,
             parameters.PageSize,
-            parameters.Count,
+            (int)parameters.Count,
             data));
     }
 }
