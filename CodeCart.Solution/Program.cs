@@ -1,11 +1,12 @@
 using CodeCart.API.Extensions;
 using CodeCart.API.Middlewares;
 using CodeCart.API.SignalR;
+using CodeCart.Core.Entities.Identity;
 using CodeCart.Infrastructure.Data;
 using CodeCart.Service;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace CodeCart.API;
 
@@ -19,7 +20,8 @@ public class Program
         builder.Services.AddControllers();
         builder.Services.AddSwaggerServices();
 
-        builder.Services.AddDbContext<StoreContext>(options => {
+        builder.Services.AddDbContext<StoreContext>(options =>
+        {
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
         });
 
@@ -43,7 +45,7 @@ public class Program
                       .AllowAnyHeader()
                       .AllowAnyMethod()
                       .AllowCredentials()
-                      .SetIsOriginAllowed((host) => true); 
+                      .SetIsOriginAllowed((host) => true);
             });
         });
 
@@ -63,8 +65,9 @@ public class Program
             try
             {
                 var context = services.GetRequiredService<StoreContext>();
+                var userManager = services.GetRequiredService<UserManager<AppUser>>();
                 await context.Database.MigrateAsync();
-                await StoreContextSeed.SeedAsync(context);
+                await StoreContextSeed.SeedAsync(context, userManager);
             }
             catch (Exception ex)
             {

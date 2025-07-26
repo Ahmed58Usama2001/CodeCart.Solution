@@ -1,4 +1,6 @@
 ﻿using CodeCart.Core.Entities;
+using CodeCart.Core.Entities.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
@@ -6,9 +8,21 @@ namespace CodeCart.Infrastructure.Data;
 
 public static class StoreContextSeed
 {
-    public static async Task SeedAsync(StoreContext _context)
+    public static async Task SeedAsync(StoreContext _context, UserManager<AppUser> _userManager)
     {
-        if(_context.Products.Count()==0)
+        if(!await _userManager.Users.AnyAsync(u=>u.UserName=="admin@test.com"))
+        {
+            var user = new AppUser()
+            {
+                UserName = "admin@test.com",
+                Email = "admin@test.com"
+            };
+
+            await _userManager.CreateAsync(user, "P@ssw0rd");
+            await _userManager.AddToRoleAsync(user, "Admin");
+        }
+
+        if(!await _context.Products.AnyAsync())
         {
             var procutsData = File.ReadAllText("../CodeCart.Infrastructure/Data/DataSeed/products.json");
 
@@ -20,7 +34,7 @@ public static class StoreContextSeed
             }
         }
         
-        if(_context.DeliveryMethods.Count()==0)
+        if(!await _context.DeliveryMethods.AnyAsync())
         {
             var dmData = File.ReadAllText("../CodeCart.Infrastructure/Data/DataSeed/delivery.json");
 

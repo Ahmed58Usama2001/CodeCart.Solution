@@ -22,7 +22,8 @@ public static class IdentityServiceExtensions
             options.Password.RequireNonAlphanumeric = true;
             options.Password.RequireUppercase = true;
             options.Password.RequireLowercase = true;
-        }).AddEntityFrameworkStores<StoreContext>();
+        }).AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<StoreContext>();
 
         services.AddAuthentication(options =>
         {

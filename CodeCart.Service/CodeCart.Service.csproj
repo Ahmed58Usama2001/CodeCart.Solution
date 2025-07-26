@@ -13,7 +13,6 @@
 	  <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.5" />
 
 	  <PackageReference Include="MimeKit" Version="4.12.0" />
-	  <PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
 
 	  <PackageReference Include="StackExchange.Redis" Version="2.8.37" />
 

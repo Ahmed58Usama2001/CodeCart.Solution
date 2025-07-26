@@ -3,7 +3,6 @@ using CodeCart.Core.Repositories.Contracts;
 using CodeCart.Core.Services.Contracts;
 using CodeCart.Infrastructure.Repositories;
 using CodeCart.Service;
-using MailKit;
 
 namespace CodeCart.API.Extensions;
 
