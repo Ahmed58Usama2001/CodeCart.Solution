@@ -13,5 +13,5 @@ public class OrderSpecParams
 
     public int PageIndex { get; set; } = 1;
 
-    public string? Status { get; set; }
+    public string? filter { get; set; }
 }

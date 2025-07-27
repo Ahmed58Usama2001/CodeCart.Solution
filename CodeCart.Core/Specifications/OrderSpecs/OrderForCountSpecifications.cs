@@ -17,7 +17,7 @@ public class OrderForCountSpecifications : BaseSpecifications<Order>
 
     private static Expression<Func<Order, bool>> GetCriteria(OrderSpecParams specParams)
     {
-        return x => (string.IsNullOrEmpty(specParams.Status) || x.Status == ParseStatus(specParams.Status));
+        return x => (string.IsNullOrEmpty(specParams.filter) || x.Status == ParseStatus(specParams.filter));
     }
 
     private static OrderStatus? ParseStatus(string status)

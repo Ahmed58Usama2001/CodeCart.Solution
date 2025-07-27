@@ -30,7 +30,7 @@ public class OrderSpecifications : BaseSpecifications<Order>
     }
 
     public OrderSpecifications(OrderSpecParams specParams):base(
-        x => (string.IsNullOrEmpty(specParams.Status) || x.Status == ParseStatus(specParams.Status)) )
+        x => (string.IsNullOrEmpty(specParams.filter) || x.Status == ParseStatus(specParams.filter)) )
     {
         AddInclude(o => o.DeliveryMethod);
         AddInclude(o => o.OrderItems);

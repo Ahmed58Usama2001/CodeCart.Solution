@@ -57,16 +57,20 @@ public class AccountController(SignInManager<AppUser> signInManager, UserManager
                 return Unauthorized(new ApiResponse(401));
 
             var token = await authService.CreateAccessTokenAsync(user, userManager);
+            var roles = await userManager.GetRolesAsync(user); 
 
-            return Ok(new UserDto
+            return Ok(new
             {
                 UserName = user.UserName ?? string.Empty,
                 Email = user.Email ?? string.Empty,
+                Roles = roles, 
                 Token = token
             });
         }
+
         return Unauthorized(new ApiResponse(401));
     }
+
 
     [Authorize]
     [HttpPost("logout")]
