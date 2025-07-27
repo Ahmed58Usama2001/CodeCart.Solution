@@ -6,22 +6,35 @@ using Stripe;
 
 namespace CodeCart.Service;
 
-public class PaymentService(IConfiguration configuration,
-        ICartService cartService,
-        IUnitOfWork unitOfWork) : IPaymentService
+public class PaymentService : IPaymentService
 {
-    public async Task<ShoppingCart?> CreateOrUpdatePaymentIntent(string cartId)
+    private readonly IConfiguration _configuration;
+    private readonly ICartService _cartService;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public PaymentService(IConfiguration configuration,
+        ICartService cartService,
+        IUnitOfWork unitOfWork)
     {
-        StripeConfiguration.ApiKey = configuration["StripeSettings:SecretKey"] ??
+        this._configuration = configuration;
+        this._cartService = cartService;
+        this._unitOfWork = unitOfWork;
+
+        StripeConfiguration.ApiKey = _configuration["StripeSettings:SecretKey"] ??
             throw new InvalidOperationException("Stripe secret key is not configured.");
 
-        var cart = await cartService.GetCartAsync(cartId);
+    }
+
+    public async Task<ShoppingCart?> CreateOrUpdatePaymentIntent(string cartId)
+    {
+        
+        var cart = await _cartService.GetCartAsync(cartId);
         if (cart == null) return null;
 
         var shippingPrice = 0m;
         if (cart.DeliveryMethodId.HasValue)
         {
-            var deliveryMethod = await unitOfWork.Repository<DeliveryMethod>().GetByIdAsync(cart.DeliveryMethodId.Value);
+            var deliveryMethod = await _unitOfWork.Repository<DeliveryMethod>().GetByIdAsync(cart.DeliveryMethodId.Value);
             if (deliveryMethod is null)
                 return null;
             shippingPrice = deliveryMethod.Price;
@@ -29,7 +42,7 @@ public class PaymentService(IConfiguration configuration,
 
         foreach (var item in cart.Items)
         {
-            var product = await unitOfWork.Repository<Core.Entities.Product>().GetByIdAsync(item.ProductId);
+            var product = await _unitOfWork.Repository<Core.Entities.Product>().GetByIdAsync(item.ProductId);
             if (product is null) return null;
             item.Price = product.Price;
         }
@@ -58,7 +71,20 @@ public class PaymentService(IConfiguration configuration,
             intent = await service.UpdateAsync(cart.PaymentIntentId, options);
         }
 
-        await cartService.SetCartAsync(cart);
+        await _cartService.SetCartAsync(cart);
         return cart;
+    }
+
+    public async Task<string> RefundPayment(string PaymentIntentId)
+    {
+        var refundOptions = new RefundCreateOptions()
+        {
+            PaymentIntent = PaymentIntentId
+        };
+
+        var refundService = new RefundService();
+        var result =await refundService.CreateAsync(refundOptions);
+
+        return result.Status;
     }
 }
