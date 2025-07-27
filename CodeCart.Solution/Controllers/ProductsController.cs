@@ -11,6 +11,7 @@ namespace CodeCart.API.Controllers;
 
 public class ProductsController(IUnitOfWork unitOfWork , IMapper mapper, IProductRepository productRepo) : BaseApiController
 {
+    [Cache(600)]
     [HttpGet]
     public async Task<ActionResult<Pagination<ProductToReturnDto>>> GetProducts(
        [FromQuery] ProductSpecificationsParams specParams)
@@ -31,7 +32,7 @@ public class ProductsController(IUnitOfWork unitOfWork , IMapper mapper, IProduc
         return await CreatePagedResult(parameters);
     }
 
-
+    [Cache(600)]
     [HttpGet("{id}")]
     public async Task<ActionResult<ProductToReturnDto>> GetProduct(int id)
     {
@@ -42,6 +43,7 @@ public class ProductsController(IUnitOfWork unitOfWork , IMapper mapper, IProduc
         return mapper.Map<ProductToReturnDto>(product);
     }
 
+    [InvalidateCache("api/products|")]
     [Authorize(Roles ="Admin")]
     [HttpPost]
     public async Task<ActionResult<ProductToReturnDto>> CreateProduct(CreateProductDto productDto)
@@ -59,6 +61,7 @@ public class ProductsController(IUnitOfWork unitOfWork , IMapper mapper, IProduc
             mapper.Map<ProductToReturnDto>(product));
     }
 
+    [InvalidateCache("api/products|")]
     [Authorize(Roles = "Admin")]
     [HttpPut("{id}")]
     public async Task<ActionResult<ProductToReturnDto>> UpdateProduct(int id, UpdateProductDto productDto)
@@ -77,6 +80,7 @@ public class ProductsController(IUnitOfWork unitOfWork , IMapper mapper, IProduc
         return Ok(mapper.Map<ProductToReturnDto>(product));
     }
 
+    [InvalidateCache("api/products|")]
     [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteProduct(int id)
@@ -93,12 +97,14 @@ public class ProductsController(IUnitOfWork unitOfWork , IMapper mapper, IProduc
         return NoContent();
     }
 
+    [Cache(10000)]
     [HttpGet("brands")]
     public async Task<ActionResult<IReadOnlyList<string>>> GetProductBrands()
     {
         return Ok(await productRepo.GetProductBrandsAsync());
     }
 
+    [Cache(10000)]
     [HttpGet("types")]
     public async Task<ActionResult<IReadOnlyList<string>>> GetProductTypes()
     {

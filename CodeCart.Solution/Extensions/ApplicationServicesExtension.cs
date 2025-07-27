@@ -21,6 +21,7 @@ public static class ApplicationServicesExtension
         services.AddSignalR();
 
         services.AddSingleton<ICartService, CartService>();
+        services.AddSingleton<IResponseCacheService, ResponseCacheService>();
 
         services.AddAutoMapper(typeof(MappingProfiles));
 
