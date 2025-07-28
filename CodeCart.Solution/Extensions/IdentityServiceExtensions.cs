@@ -47,7 +47,7 @@ public static class IdentityServiceExtensions
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(secretKey),
                 ValidateLifetime = true,
-                ClockSkew = TimeSpan.FromDays(double.Parse(configuration["JWT:DurationInDays"] ?? string.Empty))
+                ClockSkew = TimeSpan.FromDays(double.Parse(configuration["JWT:AccessTokenDurationInMinutes"] ?? string.Empty))
             };
 
             options.Events = new JwtBearerEvents
