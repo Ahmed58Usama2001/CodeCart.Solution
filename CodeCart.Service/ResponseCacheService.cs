@@ -21,7 +21,7 @@ public class ResponseCacheService(IConnectionMultiplexer redis) : IResponseCache
         await _database.StringSetAsync(cacheKey, serializedResponse, timeToLive);
     }
 
-    public async Task<string?> GetCachedResponseAsync<T>(string cacheKey)
+    public async Task<string?> GetCachedResponseAsync(string cacheKey)
     {
         var cachedResponse = await _database.StringGetAsync(cacheKey);
 
