@@ -2,6 +2,9 @@
 
 A robust and scalable e-commerce backend API built with .NET 8, featuring modern architecture patterns and real-time capabilities.
 
+# Demo
+https://youtu.be/Z1qD_A-f-kA?si=9xqBoD5YKjG02Bq1
+
 ## 🚀 Features
 
 - **Product Management**: Complete CRUD operations for products with filtering, sorting, and search
