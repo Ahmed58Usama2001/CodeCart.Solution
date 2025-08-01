@@ -81,14 +81,19 @@ public class PaymentsController(IPaymentService paymentService,
                 return;
             }
 
-            if ((long)(order.Subtotal+order.DeliveryMethod.Price) * 100 != intent.Amount)
+            decimal total = (order.Subtotal + order.DeliveryMethod.Price);
+            long expectedAmount = (long)Math.Round(total * 100M, 0, MidpointRounding.AwayFromZero);
+
+            if (expectedAmount != intent.Amount)
             {
                 order.Status = OrderStatus.PaymentMismatch;
+                logger.LogWarning("Payment mismatch: expected {Expected}, got {Actual}", expectedAmount, intent.Amount);
             }
             else
             {
                 order.Status = OrderStatus.PaymentReceived;
             }
+
 
             await unitOfWork.CompleteAsync();
 
