@@ -15,15 +15,15 @@ public class CacheAttribute(int timeToLiveSeconds) : Attribute, IAsyncActionFilt
 
         var cacheKey = GenerateCacheKeyFromRequest(context.HttpContext.Request);
 
-        var cachedResponse =await cacheService?.GetCachedResponseAsync(cacheKey);
-        
-        if(!string.IsNullOrEmpty(cachedResponse))
+        var cachedResponse = await cacheService?.GetCachedResponseAsync(cacheKey);
+
+        if (!string.IsNullOrEmpty(cachedResponse))
         {
             var contentResult = new ContentResult()
             {
                 Content = cachedResponse,
                 ContentType = "application/json",
-                StatusCode=200
+                StatusCode = 200
             };
 
             context.Result = contentResult;
@@ -32,21 +32,24 @@ public class CacheAttribute(int timeToLiveSeconds) : Attribute, IAsyncActionFilt
 
         var excutedContext = await next();
 
-        if(excutedContext.Result is OkObjectResult okObjectResult)
+        if (excutedContext.Result is OkObjectResult okObjectResult)
         {
-            if(okObjectResult.Value is not null)
+            if (okObjectResult.Value is not null)
             {
                 await cacheService?.CacheResponseAsync(cacheKey, okObjectResult.Value, TimeSpan.FromSeconds(timeToLiveSeconds));
             }
         }
 
+        
+    }
+
     private string GenerateCacheKeyFromRequest(HttpRequest request)
     {
-        var keyBuilder = new StringBuilder(); 
+        var keyBuilder = new StringBuilder();
 
         keyBuilder.Append($"{request.Path}");
 
-        foreach (var (key,value) in request.Query.OrderBy(x=>x.Key))
+        foreach (var (key, value) in request.Query.OrderBy(x => x.Key))
         {
             keyBuilder.Append($"|{key}-{value}");
         }
