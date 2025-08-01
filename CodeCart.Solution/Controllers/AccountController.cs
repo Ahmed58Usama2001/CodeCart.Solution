@@ -15,8 +15,7 @@ namespace CodeCart.API.Controllers;
 
 public class AccountController(SignInManager<AppUser> signInManager, UserManager<AppUser> userManager,
     IAuthService authService, ITokenBlacklistService tokenBlacklistService,
-    IMapper mapper, IConfiguration configuration,
-        IMailingService mailService) : BaseApiController
+    IMapper mapper) : BaseApiController
 {
     [HttpPost("register")]
     public async Task<ActionResult> Register(RegisterDto registerDto)
